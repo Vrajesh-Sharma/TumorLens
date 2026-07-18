@@ -1,0 +1,2 @@
+*.ipynb filter=lfs diff=lfs merge=lfs -text
+backend/models/attention_unet_best.pth filter=lfs diff=lfs merge=lfs -text

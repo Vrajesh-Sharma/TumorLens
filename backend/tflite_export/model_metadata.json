@@ -1,0 +1,36 @@
+{
+  "model_file": "attention_unet_float32.tflite",
+  "input": {
+    "shape": [
+      1,
+      256,
+      256,
+      1
+    ],
+    "layout": "NHWC",
+    "image_size": 256,
+    "channels": 1,
+    "color_mode": "grayscale",
+    "dtype": "<class 'numpy.float32'>",
+    "normalization": "percentile_1_99_minmax_to_[0,1]",
+    "normalization_detail": "Clip pixel values to the 1st and 99th percentile of the image, then min-max scale the clipped range to [0, 1]. This MUST match training-time preprocessing exactly."
+  },
+  "output": {
+    "shape": [
+      1,
+      256,
+      256,
+      1
+    ],
+    "dtype": "<class 'numpy.float32'>",
+    "activation_applied": "sigmoid",
+    "value_range": "[0, 1] probability map",
+    "postprocessing": "Threshold the probability map at 0.5 to obtain a binary mask. binary_mask = (prob_map > 0.5).astype(uint8). tumor_detected = binary_mask.sum() > 0. tumor_area_pct = 100 * binary_mask.sum() / binary_mask.size.",
+    "threshold": 0.5
+  },
+  "notes": [
+    "This model was trained on single-modality (FLAIR) brain MRI slices from the BraTS2020 dataset, NOT natural photos.",
+    "If layout is NHWC, transpose any (1,1,H,W) numpy array to (1,H,W,1) before inference.",
+    "Always re-run this inspection script after any re-export, since onnx2tf/TFLite conversion tools can silently change tensor layout or output activation."
+  ]
+}
