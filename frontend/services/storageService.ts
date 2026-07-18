@@ -1,5 +1,5 @@
 import { Paths, Directory, File } from 'expo-file-system';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 export interface Storable {
   id: string;
@@ -11,6 +11,7 @@ class StorageServiceImpl {
   private writeTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private initialized = false;
   private baseDir!: Directory;
+  private useWebFallback = false;
 
   get dataDir(): string {
     return this.baseDir?.uri ?? '';
@@ -18,25 +19,57 @@ class StorageServiceImpl {
 
   async init(): Promise<void> {
     if (this.initialized) return;
-    this.baseDir = new Directory(Paths.document, 'app_data');
-    if (!(await this.baseDir.exists)) {
-      await this.baseDir.create({ intermediates: true });
-    }
-
-    const subdirs = ['auth', 'patients', 'meta', 'exports', 'images'];
-    for (const name of subdirs) {
-      const dir = new Directory(this.baseDir, name);
-      if (!(await dir.exists)) {
-        await dir.create({ intermediates: true });
+    try {
+      this.baseDir = new Directory(Paths.document, 'app_data');
+      if (!(await this.baseDir.exists)) {
+        await this.baseDir.create({ intermediates: true });
       }
-    }
-    this.initialized = true;
 
-    AppState.addEventListener('change', (state) => {
-      if (state === 'background' || state === 'inactive') {
-        this.flushAll();
+      const subdirs = ['auth', 'patients', 'meta', 'exports', 'images'];
+      for (const name of subdirs) {
+        const dir = new Directory(this.baseDir, name);
+        if (!(await dir.exists)) {
+          await dir.create({ intermediates: true });
+        }
       }
-    });
+      this.initialized = true;
+
+      AppState.addEventListener('change', (state) => {
+        if (state === 'background' || state === 'inactive') {
+          this.flushAll();
+        }
+      });
+    } catch {
+      console.warn('[storageService] File system not available, falling back to in-memory + localStorage.');
+      this.useWebFallback = true;
+      this.initialized = true;
+      this.loadFromWebFallback();
+    }
+  }
+
+  private async loadFromWebFallback(): Promise<void> {
+    try {
+      const raw = globalThis.localStorage?.getItem('app_data_index');
+      if (raw) {
+        const collections: string[] = JSON.parse(raw);
+        for (const col of collections) {
+          const data = globalThis.localStorage?.getItem(`app_data_${col}`);
+          if (data) {
+            this.cache.set(col, JSON.parse(data));
+          }
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
+  private async persistToWebFallback(): Promise<void> {
+    try {
+      const collections = Array.from(this.cache.keys());
+      globalThis.localStorage?.setItem('app_data_index', JSON.stringify(collections));
+      for (const [col, data] of this.cache.entries()) {
+        globalThis.localStorage?.setItem(`app_data_${col}`, JSON.stringify(data));
+      }
+    } catch { /* ignore */ }
   }
 
   private file(collection: string): File {
@@ -44,6 +77,14 @@ class StorageServiceImpl {
   }
 
   async readJSON<T extends Storable>(collection: string): Promise<T[]> {
+    if (this.useWebFallback) {
+      try {
+        const data = globalThis.localStorage?.getItem(`app_data_${collection}`);
+        return data ? JSON.parse(data) : [];
+      } catch {
+        return [];
+      }
+    }
     const f = this.file(collection);
     if (!(await f.exists)) return [];
     try {
@@ -56,6 +97,19 @@ class StorageServiceImpl {
   }
 
   async writeJSON<T extends Storable>(collection: string, data: T[]): Promise<void> {
+    if (this.useWebFallback) {
+      try {
+        globalThis.localStorage?.setItem(`app_data_${collection}`, JSON.stringify(data));
+        // Update the collection index for persistence
+        const raw = globalThis.localStorage?.getItem('app_data_index');
+        const collections: string[] = raw ? JSON.parse(raw) : [];
+        if (!collections.includes(collection)) {
+          collections.push(collection);
+          globalThis.localStorage?.setItem('app_data_index', JSON.stringify(collections));
+        }
+      } catch { /* ignore */ }
+      return;
+    }
     const f = this.file(collection);
     await f.write(JSON.stringify(data, null, 2));
   }

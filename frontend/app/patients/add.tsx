@@ -48,9 +48,7 @@ export default function AddPatientScreen() {
   const onSubmit = async (data: any) => {
     setSubmitting(true);
     try {
-      const patientId = `PAT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
       await addPatient({
-        id: patientId,
         name: data.name,
         age: Number(data.age),
         gender: data.gender,

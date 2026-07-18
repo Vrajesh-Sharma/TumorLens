@@ -3,12 +3,10 @@ import { View, Text, Pressable, ActivityIndicator, Platform } from 'react-native
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
-import { PerClassCounts } from '../../types/prediction';
 import { formatConfidence, formatScanDate } from '../../utils';
 
 interface ReportGeneratorProps {
   tumorAreaPercent: number;
-  perClassCounts: PerClassCounts;
   confidence: number;
   modelVersion: string;
   device?: string;
@@ -24,7 +22,6 @@ interface ReportGeneratorProps {
 
 export function ReportGenerator({
   tumorAreaPercent,
-  perClassCounts,
   confidence,
   modelVersion,
   device,
@@ -39,9 +36,6 @@ export function ReportGenerator({
 }: ReportGeneratorProps) {
   const { colors, isDark } = useTheme();
   const deviceName = device || (Platform.OS === 'web' ? 'Web Browser' : `${Platform.OS === 'ios' ? 'iOS' : 'Android'} Device`);
-
-  const total = (perClassCounts.background || 0) + (perClassCounts.necrotic_core || 0) + (perClassCounts.edema || 0) + (perClassCounts.enhancing_tumor || 0) || 1;
-  const getPercent = (count: number) => ((count / total) * 100).toFixed(2);
 
   return (
     <Animated.View
@@ -73,25 +67,6 @@ export function ReportGenerator({
             <Text className="text-xs font-bold text-text dark:text-text-dark font-mono">{tumorAreaPercent.toFixed(2)}%</Text>
           </View>
         )}
-
-        <View className="gap-2.5 pb-3 border-b border-border/10 dark:border-border-dark/10">
-          <Text className="text-[10px] font-bold text-subText dark:text-subText-dark uppercase tracking-wider">Tissue Classification</Text>
-
-          {[
-            { label: 'Peritumoral Edema (ED)', color: '#D97706', key: 'edema' as const },
-            { label: 'Necrotic Core (NCR)', color: '#DC2626', key: 'necrotic_core' as const },
-            { label: 'Enhancing Tumor (ET)', color: '#2563EB', key: 'enhancing_tumor' as const },
-            { label: 'Background (BG)', color: isDark ? '#374151' : '#E5E7EB', key: 'background' as const },
-          ].map(({ label, color, key }) => (
-            <View key={key} className="flex-row justify-between items-center">
-              <View className="flex-row items-center gap-2">
-                <View className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-                <Text className="text-xs text-text dark:text-text-dark">{label}</Text>
-              </View>
-              <Text className="text-xs font-bold text-text dark:text-text-dark font-mono">{getPercent(perClassCounts[key] || 0)}%</Text>
-            </View>
-          ))}
-        </View>
 
         <View className="gap-2.5 pb-3 border-b border-border/10 dark:border-border-dark/10">
           <Text className="text-[10px] font-bold text-subText dark:text-subText-dark uppercase tracking-wider">Model Telemetry</Text>

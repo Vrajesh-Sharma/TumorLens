@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { View, Platform, Appearance, LogBox } from 'react-native';
+import { View, Appearance, LogBox } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
@@ -84,13 +84,12 @@ function ThemeApplier() {
 
 export default function RootLayout() {
   const setThemeMode = useAppStore((s) => s.setThemeMode);
+  const [storageReady, setStorageReady] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     async function prepare() {
       try {
-        if (Platform.OS !== 'web') {
-          await storageService.init();
-        }
+        await storageService.init();
         await notificationService.requestPermissions();
 
         const savedTheme = await SecureStore.getItemAsync('THEME_MODE');
@@ -101,10 +100,15 @@ export default function RootLayout() {
         console.error('[RootLayout] Init error:', err);
       } finally {
         SplashScreen.hideAsync();
+        setStorageReady(true);
       }
     }
     prepare();
   }, [setThemeMode]);
+
+  if (!storageReady) {
+    return null;
+  }
 
   return (
     <ErrorBoundary>

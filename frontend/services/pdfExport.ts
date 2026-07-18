@@ -325,35 +325,22 @@ export const pdfExportService = {
         </div>
 
         ${isDetected ? `
-        <div class="section-title">Quantitative Pixel Breakdown</div>
+        <div class="section-title">Tumor Volumetrics</div>
         <table>
           <thead>
             <tr>
-              <th>Sub-region Label</th>
-              <th>Pixel Volume</th>
-              <th>Percentage Weight</th>
+              <th>Metric</th>
+              <th>Value</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><span class="color-dot" style="background-color: #FDD663;"></span>Peritumoral Edema (ED)</td>
-              <td>${(perClass.edema || 0).toLocaleString()} px</td>
-              <td>${getPercent(perClass.edema || 0)}%</td>
+              <td>Total Tumor Area</td>
+              <td>${formatted.overallTumorArea}%</td>
             </tr>
             <tr>
-              <td><span class="color-dot" style="background-color: #EA4335;"></span>Necrotic Core (NCR)</td>
-              <td>${(perClass.necrotic_core || 0).toLocaleString()} px</td>
-              <td>${getPercent(perClass.necrotic_core || 0)}%</td>
-            </tr>
-            <tr>
-              <td><span class="color-dot" style="background-color: #1A73E8;"></span>Enhancing Tumor (ET)</td>
-              <td>${(perClass.enhancing_tumor || 0).toLocaleString()} px</td>
-              <td>${getPercent(perClass.enhancing_tumor || 0)}%</td>
-            </tr>
-            <tr>
-              <td><span class="color-dot" style="background-color: #BDC1C6;"></span>Healthy Brain Tissue (BG)</td>
-              <td>${(perClass.background || 0).toLocaleString()} px</td>
-              <td>${getPercent(perClass.background || 0)}%</td>
+              <td>Total Tumor Pixels</td>
+              <td>${(perClass.background || 0) + (perClass.necrotic_core || 0) + (perClass.edema || 0) + (perClass.enhancing_tumor || 0)} px</td>
             </tr>
           </tbody>
         </table>

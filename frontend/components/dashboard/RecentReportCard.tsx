@@ -115,7 +115,7 @@ export function RecentReportCard({
         {report.status === 'Completed' && (
           <View className="absolute bottom-1.5 right-1.5 bg-black/60 px-2 py-0.5 rounded-md">
             <Text className="text-[9px] font-bold text-white">
-              AI: {(report.predictionScore * 100).toFixed(1)}%
+              AI: {(report.predictionScore).toFixed(1)}%
             </Text>
           </View>
         )}

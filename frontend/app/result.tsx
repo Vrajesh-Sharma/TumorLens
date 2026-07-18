@@ -12,7 +12,7 @@ import { reportFormatter } from '../services/predictionService';
 import { useRequireAuth } from '../hooks/useRoleGuard';
 import { usePrediction } from '../hooks/usePrediction';
 import { useScanStore } from '../store';
-import { MriViewer, OpacitySlider, Legend } from '../components/viewer';
+import { MriViewer, OpacitySlider } from '../components/viewer';
 import { ReportGenerator } from '../components/reports/ReportGenerator';
 import { reportService } from '../services/reportService';
 import { syncQueueService } from '../services/syncQueueService';
@@ -20,7 +20,7 @@ import { notificationService } from '../services/notifications';
 import { useNotificationPopUp } from '../hooks/useNotificationPopUp';
 import ResultNotificationCard from '../components/notifications/ResultNotificationCard';
 import ExportActionSheet from '../components/exports/ExportActionSheet';
-import type { LegendItem } from '../components/viewer/Legend';
+
 
 export default function ResultScreen() {
   useRequireAuth();
@@ -177,12 +177,6 @@ export default function ResultScreen() {
 
   const clinicalReport = reportFormatter.generateReport(prediction);
 
-  const bgCount = perClass.background || 0;
-  const necroticCount = perClass.necrotic_core || 0;
-  const edemaCount = perClass.edema || 0;
-  const enhancingCount = perClass.enhancing_tumor || 0;
-  const totalPixels = bgCount + necroticCount + edemaCount || 1;
-
   const overlaySourceUri = prediction.overlay_image?.startsWith('data:')
     ? prediction.overlay_image
     : prediction.overlay_image
@@ -194,13 +188,6 @@ export default function ResultScreen() {
     : prediction.raw_mask
       ? `data:image/png;base64,${prediction.raw_mask}`
       : null;
-
-  const legendItems: LegendItem[] = [
-    { label: 'Background (BG)', color: isDark ? '#374151' : '#E5E7EB', count: bgCount },
-    { label: 'Necrotic Core (NCR)', color: '#DC2626', count: necroticCount },
-    { label: 'Peritumoral Edema (ED)', color: '#D97706', count: edemaCount },
-    { label: 'Enhancing Tumor (ET)', color: '#2563EB', count: enhancingCount },
-  ];
 
   const handleSaveReport = async () => {
     setIsSaving(true);
@@ -350,14 +337,9 @@ export default function ResultScreen() {
           </View>
         )}
 
-        <View className={`${isTablet ? 'mx-12' : 'mx-5'} mb-4`}>
-          <Legend items={legendItems} totalPixels={totalPixels} />
-        </View>
-
         <View className={`${isTablet ? 'mx-12' : 'mx-5'} mb-5`}>
           <ReportGenerator
             tumorAreaPercent={prediction.tumor_area}
-            perClassCounts={perClass}
             confidence={clinicalReport.confidence}
             modelVersion={clinicalReport.modelUsed}
             scanDate={stats.timestamp || new Date().toISOString()}

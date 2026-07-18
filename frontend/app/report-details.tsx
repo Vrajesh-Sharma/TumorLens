@@ -8,10 +8,9 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../components/ui/layout/Layouts';
 import { AppHeader } from '../components/ui/navigation/AppHeader';
 import { useRequireAuth } from '../hooks/useRoleGuard';
-import { MriViewer, OpacitySlider, Legend } from '../components/viewer';
+import { MriViewer, OpacitySlider } from '../components/viewer';
 import { ReportGenerator } from '../components/reports/ReportGenerator';
 import ExportActionSheet from '../components/exports/ExportActionSheet';
-import type { LegendItem } from '../components/viewer/Legend';
 
 export default function ReportDetailsScreen() {
   useRequireAuth();
@@ -64,16 +63,6 @@ export default function ReportDetailsScreen() {
   const originalUri = report.originalImageUri || null;
   const overlayUri = report.overlayImageUri || null;
   const maskUri = report.maskImageUri || overlayUri || null;
-
-  const counts = report.tumorStats?.per_class_counts || {};
-  const totalPixels = (counts.background || 0) + (counts.necrotic_core || 0) + (counts.edema || 0) + (counts.enhancing_tumor || 0) || 1;
-
-  const legendItems: LegendItem[] = [
-    { label: 'Background (BG)', color: isDark ? '#374151' : '#E5E7EB', count: counts.background || 0 },
-    { label: 'Necrotic Core (NCR)', color: '#DC2626', count: counts.necrotic_core || 0 },
-    { label: 'Peritumoral Edema (ED)', color: '#D97706', count: counts.edema || 0 },
-    { label: 'Enhancing Tumor (ET)', color: '#2563EB', count: counts.enhancing_tumor || 0 },
-  ];
 
   const handleToggleFavorite = () => {
     toggleFavorite(report.id);
@@ -143,14 +132,9 @@ export default function ReportDetailsScreen() {
           <OpacitySlider value={overlayOpacity} onValueChange={setOverlayOpacity} />
         </Animated.View>
 
-        <Animated.View entering={FadeIn.duration(350)} className="mb-5">
-          <Legend items={legendItems} totalPixels={totalPixels} />
-        </Animated.View>
-
         <View className="mb-5">
           <ReportGenerator
             tumorAreaPercent={report.tumorStats?.tumor_area || 0}
-            perClassCounts={counts}
             confidence={report.tumorDetected ? 0.95 : 0.98}
             modelVersion={report.modelUsed || 'BraTS2020 U-Net (TFLite)'}
             scanDate={report.timestamp}

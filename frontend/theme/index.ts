@@ -1,4 +1,5 @@
 import { useColorScheme } from 'react-native';
+import { useAppStore } from '../store/appStore';
 
 export const spacing = {
   xs: 4,
@@ -151,8 +152,11 @@ export const theme = {
 };
 
 export function useTheme() {
+  const themeMode = useAppStore((s) => s.themeMode);
   const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
+
+  // const isDark = themeMode === 'dark' || (themeMode === 'system' && scheme === 'dark');
+  const isDark = themeMode === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
 
   return {

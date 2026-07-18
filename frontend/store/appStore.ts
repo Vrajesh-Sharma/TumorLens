@@ -23,7 +23,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   isLoading: false,
-  themeMode: 'system',
+  themeMode: 'dark',
   toasts: [],
   isOnline: true,
   setLoading: (isLoading) => set({ isLoading }),
