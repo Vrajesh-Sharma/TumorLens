@@ -18,12 +18,16 @@ class StorageServiceImpl {
   async init(): Promise<void> {
     if (this.initialized) return;
     this.baseDir = new Directory(Paths.document, 'app_data');
-    await this.baseDir.create({ intermediates: true });
+    if (!(await this.baseDir.exists)) {
+      await this.baseDir.create({ intermediates: true });
+    }
 
     const subdirs = ['auth', 'patients', 'meta', 'exports', 'images'];
     for (const name of subdirs) {
       const dir = new Directory(this.baseDir, name);
-      await dir.create({ intermediates: true });
+      if (!(await dir.exists)) {
+        await dir.create({ intermediates: true });
+      }
     }
     this.initialized = true;
   }

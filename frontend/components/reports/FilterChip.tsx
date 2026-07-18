@@ -8,8 +8,6 @@ interface FilterChipProps {
   onPress: () => void;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export const FilterChip = React.memo(function FilterChip({ label, selected, onPress }: FilterChipProps) {
   const scale = useSharedValue(1);
 
@@ -28,25 +26,26 @@ export const FilterChip = React.memo(function FilterChip({ label, selected, onPr
   };
 
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      style={animatedStyle}
-      className={`px-4 py-2 rounded-full border mr-2 mb-2 flex-row items-center justify-center ${
-        selected 
-          ? 'bg-primary dark:bg-primary-dark border-primary dark:border-primary-dark shadow-sm' 
-          : 'bg-surface dark:bg-surface-dark border-border/70 dark:border-border-dark/70'
-      }`}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-    >
-      <Text className={`text-xs font-bold ${
-        selected ? 'text-white dark:text-background-dark' : 'text-subText dark:text-subText-dark'
-      }`}>
-        {label}
-      </Text>
-    </AnimatedPressable>
+    <Animated.View style={animatedStyle}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        className={`px-4 py-2 rounded-full border mr-2 mb-2 flex-row items-center justify-center ${
+          selected 
+            ? 'bg-primary dark:bg-primary-dark border-primary dark:border-primary-dark shadow-sm' 
+            : 'bg-surface dark:bg-surface-dark border-border/70 dark:border-border-dark/70'
+        }`}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+      >
+        <Text className={`text-xs font-bold ${
+          selected ? 'text-white dark:text-background-dark' : 'text-subText dark:text-subText-dark'
+        }`}>
+          {label}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
 });
 

@@ -152,7 +152,12 @@ export default function UploadScreen() {
 
     router.push({
       pathname: '/result',
-      params: { imageUri: selectedImage.uri, fileName: patientData.name },
+      params: {
+        imageUri: selectedImage.uri,
+        fileName: patientData.name,
+        patientAge: patientData.age,
+        patientGender: patientData.gender,
+      },
     });
   };
 

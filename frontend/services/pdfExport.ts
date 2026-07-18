@@ -1,7 +1,24 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { File } from 'expo-file-system';
 import { Report } from '../types/report';
 import { reportFormatter } from './predictionService';
+
+async function resolveImageUri(uri: string | undefined | null): Promise<string | null> {
+  if (!uri) return null;
+  if (uri.startsWith('data:')) return uri;
+  if (uri.startsWith('http://') || uri.startsWith('https://')) return uri;
+  try {
+    const file = new File(uri);
+    const base64 = await file.base64();
+    const ext = uri.split('.').pop()?.toLowerCase() || 'png';
+    const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png';
+    return `data:${mime};base64,${base64}`;
+  } catch (e) {
+    console.warn('[pdfExport] Failed to read image:', uri, e);
+    return null;
+  }
+}
 
 /**
  * PDF Generation and Sharing Service
@@ -11,6 +28,11 @@ export const pdfExportService = {
    * Compiles an HTML template of the medical report and exports it as a local PDF document.
    */
   async exportReportToPdf(report: Report): Promise<string> {
+    const [originalSrc, overlaySrc] = await Promise.all([
+      resolveImageUri(report.originalImageUri),
+      resolveImageUri(report.overlayImageUri),
+    ]);
+
     const isDetected = report.tumorDetected;
     const stats = report.tumorStats || {};
     const perClass = stats.per_class_counts || {};
@@ -27,10 +49,7 @@ export const pdfExportService = {
     const total = (perClass.background || 0) + (perClass.necrotic_core || 0) + (perClass.edema || 0) + (perClass.enhancing_tumor || 0) || 1;
     const getPercent = (count: number) => ((count / total) * 100).toFixed(2);
 
-    const originalSrc = report.originalImageUri;
-    const overlaySrc = report.overlayImageUri.startsWith('data:') 
-      ? report.overlayImageUri 
-      : report.overlayImageUri;
+    const hasImg = (u: string | null): u is string => !!u;
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -258,6 +277,10 @@ export const pdfExportService = {
               <span class="meta-value">${report.patientAge || 'N/A'} yrs / ${report.patientGender || 'N/A'}</span>
             </div>
             <div class="meta-row">
+              <span class="meta-label">Patient ID:</span>
+              <span class="meta-value">${report.patientId || 'N/A'}</span>
+            </div>
+            <div class="meta-row">
               <span class="meta-label">Intake File:</span>
               <span class="meta-value">${report.id.substring(0, 15)}</span>
             </div>
@@ -283,18 +306,21 @@ export const pdfExportService = {
         <div class="section-title">Visual Reconstruction</div>
         <div class="visual-comparison">
           <div class="image-box">
-            ${originalSrc && (originalSrc.startsWith('http') || originalSrc.startsWith('file://') || originalSrc.startsWith('data:'))
-              ? `<img src="${originalSrc}" alt="Original MRI" />` 
+            ${hasImg(originalSrc)
+              ? `<img src="${originalSrc}" alt="Original MRI" />`
               : `<div style="height: 180px; display: flex; align-items: center; justify-content: center; color: #5F6368; font-size: 11px;">Original MRI Slice</div>`
             }
             <div class="image-label">Original MRI Slice</div>
           </div>
           <div class="image-box">
-            ${overlaySrc && (overlaySrc.startsWith('http') || overlaySrc.startsWith('file://') || overlaySrc.startsWith('data:'))
-              ? `<img src="${overlaySrc}" alt="Segmented Overlay" />`
-              : `<div style="height: 180px; display: flex; align-items: center; justify-content: center; color: #5F6368; font-size: 11px;">AI Segmented Mask</div>`
+            ${hasImg(originalSrc) && hasImg(overlaySrc)
+              ? `<div style="position: relative; max-width: 260px; margin: 0 auto;">
+                   <img src="${originalSrc}" style="display: block; width: 100%; height: auto; border-radius: 4px;" />
+                   <img src="${overlaySrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.6; border-radius: 4px;" />
+                 </div>`
+              : `<div style="height: 180px; display: flex; align-items: center; justify-content: center; color: #5F6368; font-size: 11px;">AI Segmentation Overlay</div>`
             }
-            <div class="image-label">AI Segmented Mask</div>
+            <div class="image-label">Overlay on Original (60% opacity)</div>
           </div>
         </div>
 

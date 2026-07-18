@@ -4,6 +4,7 @@ import { ScreenContainer } from '../components/ui/layout/Layouts';
 import { AppHeader } from '../components/ui/navigation/AppHeader';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, router } from 'expo-router';
+import { Paths, File, Directory } from 'expo-file-system';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '../theme';
 import { formatConfidence } from '../utils';
@@ -26,16 +27,39 @@ export default function ResultScreen() {
   const { colors, isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
-  const params = useLocalSearchParams<{ imageUri?: string; fileName?: string }>();
+  const params = useLocalSearchParams<{ imageUri?: string; fileName?: string; patientAge?: string; patientGender?: string }>();
   const { currentScan } = useScanStore();
   const { status, progress, error, data: prediction, startPrediction, cancelPrediction, resetPrediction } = usePrediction();
 
   const [overlayOpacity, setOverlayOpacity] = useState(0.7);
   const [isSaving, setIsSaving] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [permanentImageUri, setPermanentImageUri] = useState<string | null>(null);
   const { currentNotification: notif, show: showNotif, dismiss: dismissNotif } = useNotificationPopUp();
 
   const localImageUri = params.imageUri || currentScan?.originalImageUri || null;
+
+  async function copyToPermanentStorage(uri: string): Promise<string> {
+    try {
+      const imgDir = new Directory(Paths.document, 'images');
+      if (!(await imgDir.exists)) {
+        await imgDir.create({ intermediates: true });
+      }
+      const srcFile = new File(uri);
+      const ext = uri.split('.').pop()?.toLowerCase() || 'png';
+      const destFile = new File(imgDir, `orig_${Date.now()}.${ext}`);
+      await srcFile.copy(destFile);
+      return destFile.uri;
+    } catch {
+      return uri;
+    }
+  }
+
+  useEffect(() => {
+    if (localImageUri && !permanentImageUri) {
+      copyToPermanentStorage(localImageUri).then(setPermanentImageUri);
+    }
+  }, [localImageUri]);
 
   useEffect(() => {
     if (localImageUri && !prediction && status === 'idle') {
@@ -52,7 +76,7 @@ export default function ResultScreen() {
           ? `Tumor area: ${prediction.tumor_area.toFixed(1)}% — Review recommended`
           : `No anomalies found. Confidence: ${formatConfidence(prediction.confidence || 0)}`,
         actions: [
-          { label: 'View Report', onPress: () => {} },
+          { label: 'View Report', onPress: () => { dismissNotif(); } },
           { label: 'Dismiss', onPress: () => dismissNotif() },
         ],
         icon: prediction.detection_flag ? 'warning-outline' : 'checkmark-circle-outline',
@@ -182,10 +206,15 @@ export default function ResultScreen() {
     setIsSaving(true);
     try {
       const patientName = params.fileName?.trim() || (currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient');
+      const patientAge = params.patientAge ? parseInt(params.patientAge, 10) : undefined;
+      const patientGender = (params.patientGender as 'male' | 'female' | 'other') || undefined;
       const reportData: import('../types/report').Report = {
         id: `REP-${Date.now()}`,
         patientName,
-        originalImageUri: localImageUri || '',
+        patientId: `PID-${Date.now().toString(36).toUpperCase()}`,
+        patientAge,
+        patientGender,
+        originalImageUri: permanentImageUri || localImageUri || '',
         overlayImageUri: overlaySourceUri || '',
         maskImageUri: maskSourceUri || undefined,
         tumorStats: {
@@ -218,7 +247,10 @@ export default function ResultScreen() {
   const buildTempReport = () => ({
     id: `temp_${Date.now()}`,
     patientName: params.fileName?.trim() || (currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient'),
-    originalImageUri: localImageUri || '',
+    patientId: `PID-${Date.now().toString(36).toUpperCase()}`,
+    patientAge: params.patientAge ? parseInt(params.patientAge, 10) : undefined,
+    patientGender: (params.patientGender as 'male' | 'female' | 'other') || undefined,
+    originalImageUri: permanentImageUri || localImageUri || '',
     overlayImageUri: overlaySourceUri || '',
     maskImageUri: maskSourceUri || undefined,
     tumorStats: {
