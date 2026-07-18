@@ -8,7 +8,7 @@ interface StatisticsRowProps {
   stats: ReportStatistics;
 }
 
-export function StatisticsRow({ stats }: StatisticsRowProps) {
+export const StatisticsRow = React.memo(function StatisticsRow({ stats }: StatisticsRowProps) {
   const { colors, isDark } = useTheme();
 
   const Card = ({ label, count, icon, color, bg }: { label: string; count: number | string; icon: string; color: string; bg: string }) => (
@@ -59,6 +59,6 @@ export function StatisticsRow({ stats }: StatisticsRowProps) {
       </View>
     </View>
   );
-}
+});
 
 export default StatisticsRow;

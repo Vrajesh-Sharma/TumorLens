@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Switch, Pressable } from 'react-native';
+import { View, Text, Switch, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { UserProfile } from '../../contexts/AuthContext';
@@ -7,23 +7,12 @@ import { UserProfile } from '../../contexts/AuthContext';
 interface AvatarProps {
   name: string;
   size?: number;
-  photoUri?: string;
 }
 
-export function ProfileAvatar({ name, size = 64, photoUri }: AvatarProps) {
+export function ProfileAvatar({ name, size = 64 }: AvatarProps) {
   const initials = name
     ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     : 'DR';
-
-  if (photoUri) {
-    return (
-      <Image 
-        source={{ uri: photoUri }} 
-        style={{ width: size, height: size, borderRadius: size / 2 }} 
-        resizeMode="cover"
-      />
-    );
-  }
 
   return (
     <View 
@@ -47,7 +36,7 @@ export function DoctorCard({ user }: DoctorCardProps) {
 
   return (
     <View className="bg-surface dark:bg-surface-dark border border-border/45 dark:border-border-dark/45 rounded-2xl p-4 flex-row gap-4 items-center shadow-sm">
-      <ProfileAvatar name={user.name} photoUri={user.photoUri} size={56} />
+      <ProfileAvatar name={user.name} size={56} />
       
       <View className="flex-1">
         <View className="flex-row items-center gap-2">
@@ -60,14 +49,8 @@ export function DoctorCard({ user }: DoctorCardProps) {
             </Text>
           </View>
         </View>
-        <Text className="text-[9px] text-primary dark:text-primary-dark font-bold uppercase mt-0.5 tracking-wider">
-          {user.specialization} • {user.department || 'Radiology'}
-        </Text>
         <Text className="text-[9px] text-subText dark:text-subText-dark mt-1 font-mono">
-          License: {user.medicalLicenseId}
-        </Text>
-        <Text className="text-[9px] text-subText dark:text-subText-dark font-mono mt-0.5 truncate" numberOfLines={1}>
-          {user.hospitalName}
+          {user.email}
         </Text>
       </View>
     </View>

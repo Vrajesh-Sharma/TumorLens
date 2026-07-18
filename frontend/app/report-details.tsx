@@ -63,6 +63,7 @@ export default function ReportDetailsScreen() {
 
   const originalUri = report.originalImageUri || null;
   const overlayUri = report.overlayImageUri || null;
+  const maskUri = report.maskImageUri || overlayUri || null;
 
   const counts = report.tumorStats?.per_class_counts || {};
   const totalPixels = (counts.background || 0) + (counts.necrotic_core || 0) + (counts.edema || 0) + (counts.enhancing_tumor || 0) || 1;
@@ -133,6 +134,7 @@ export default function ReportDetailsScreen() {
           <MriViewer
             originalUri={originalUri}
             overlayUri={overlayUri}
+            maskUri={maskUri}
             overlayOpacity={overlayOpacity}
           />
         </Animated.View>

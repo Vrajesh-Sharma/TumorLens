@@ -10,7 +10,7 @@ interface FilterChipProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function FilterChip({ label, selected, onPress }: FilterChipProps) {
+export const FilterChip = React.memo(function FilterChip({ label, selected, onPress }: FilterChipProps) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -48,6 +48,6 @@ export function FilterChip({ label, selected, onPress }: FilterChipProps) {
       </Text>
     </AnimatedPressable>
   );
-}
+});
 
 export default FilterChip;

@@ -3,6 +3,8 @@ import { config } from '../config';
 
 const TUMOR_COLOR: [number, number, number, number] = [255, 0, 0, 180];
 
+type MaskRenderMode = 'overlay' | 'binary';
+
 export interface SegmentationResult {
   maskBase64: string;
   overlayBase64: string;
@@ -46,8 +48,8 @@ export function parseOutputTensor(
     ? parseFloat((sumProb / numPixels).toFixed(4))
     : parseFloat((sumProb / numPixels).toFixed(4));
 
-  const maskBase64 = renderBinaryMask(classMap, width, height, false);
-  const overlayBase64 = renderBinaryMask(classMap, width, height, true);
+  const maskBase64 = renderBinaryMask(classMap, width, height, 'binary');
+  const overlayBase64 = renderBinaryMask(classMap, width, height, 'overlay');
 
   return {
     maskBase64,
@@ -91,8 +93,8 @@ export function parseOutputTensorUint8(
     ? parseFloat((tumorPixels / numPixels).toFixed(4))
     : 0;
 
-  const maskBase64 = renderBinaryMask(classMap, width, height, false);
-  const overlayBase64 = renderBinaryMask(classMap, width, height, true);
+  const maskBase64 = renderBinaryMask(classMap, width, height, 'binary');
+  const overlayBase64 = renderBinaryMask(classMap, width, height, 'overlay');
 
   return {
     maskBase64,
@@ -114,22 +116,39 @@ function renderBinaryMask(
   classMap: Uint8Array,
   width: number,
   height: number,
-  _blendWithOriginal: boolean
+  mode: MaskRenderMode
 ): string {
   const pixels = new Uint8Array(width * height * 4);
 
-  for (let i = 0; i < width * height; i++) {
-    const offset = i * 4;
-    if (classMap[i] === 1) {
-      pixels[offset] = TUMOR_COLOR[0];
-      pixels[offset + 1] = TUMOR_COLOR[1];
-      pixels[offset + 2] = TUMOR_COLOR[2];
-      pixels[offset + 3] = TUMOR_COLOR[3];
-    } else {
-      pixels[offset] = 0;
-      pixels[offset + 1] = 0;
-      pixels[offset + 2] = 0;
-      pixels[offset + 3] = 0;
+  if (mode === 'binary') {
+    for (let i = 0; i < width * height; i++) {
+      const offset = i * 4;
+      if (classMap[i] === 1) {
+        pixels[offset] = 255;
+        pixels[offset + 1] = 255;
+        pixels[offset + 2] = 255;
+        pixels[offset + 3] = 255;
+      } else {
+        pixels[offset] = 0;
+        pixels[offset + 1] = 0;
+        pixels[offset + 2] = 0;
+        pixels[offset + 3] = 255;
+      }
+    }
+  } else {
+    for (let i = 0; i < width * height; i++) {
+      const offset = i * 4;
+      if (classMap[i] === 1) {
+        pixels[offset] = TUMOR_COLOR[0];
+        pixels[offset + 1] = TUMOR_COLOR[1];
+        pixels[offset + 2] = TUMOR_COLOR[2];
+        pixels[offset + 3] = TUMOR_COLOR[3];
+      } else {
+        pixels[offset] = 0;
+        pixels[offset + 1] = 0;
+        pixels[offset + 2] = 0;
+        pixels[offset + 3] = 0;
+      }
     }
   }
 

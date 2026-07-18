@@ -6,10 +6,12 @@ import { TumorStats } from './prediction';
 export interface Report {
   id: string;
   patientName: string;
+  patientId?: string;
   patientAge?: number;
   patientGender?: 'male' | 'female' | 'other';
   originalImageUri: string;
   overlayImageUri: string;
+  maskImageUri?: string;
   tumorStats: TumorStats;
   tumorDetected: boolean;
   timestamp: string; // ISO date-time string

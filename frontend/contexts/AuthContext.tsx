@@ -8,12 +8,6 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  hospitalName: string;
-  medicalLicenseId: string;
-  specialization: string;
-  department: string;
-  phone: string;
-  photoUri: string;
   role: UserRole;
 }
 
@@ -46,12 +40,6 @@ function createLocalUser(email: string, name?: string) {
       id: generateLocalId(),
       name: name || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
       email,
-      hospitalName: 'Local Device',
-      medicalLicenseId: 'LOCAL-' + Date.now().toString(36).toUpperCase(),
-      specialization: 'General Radiology',
-      department: 'Radiology',
-      phone: '',
-      photoUri: '',
       role: (isRadiologist ? 'radiologist' : 'doctor') as UserRole,
     },
   };

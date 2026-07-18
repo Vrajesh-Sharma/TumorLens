@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { router, useSegments } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import type { UserRole } from '../types';
@@ -25,9 +25,13 @@ export function useRoleGuard(requiredRole?: UserRole) {
 export function useRequireAuth() {
   const { isAuthenticated, isLoading, userRole } = useAuth();
   const segments = useSegments();
+  const hasChecked = useRef(false);
 
   useEffect(() => {
     if (isLoading) return;
+
+    if (hasChecked.current) return;
+    hasChecked.current = true;
 
     if (!isAuthenticated) {
       router.replace('/(auth)/welcome');

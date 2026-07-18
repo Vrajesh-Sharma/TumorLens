@@ -181,6 +181,7 @@ export const aiService: AIService = {
       id: scanId,
       originalImageUri: request.imageUri,
       maskImageUri: result.maskBase64,
+      overlayImageUri: result.overlayBase64,
       predictionScore: result.confidence,
       tumorDetected: result.tumorDetected,
       tumorAreaMm2: result.tumorArea,

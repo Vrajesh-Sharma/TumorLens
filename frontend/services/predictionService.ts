@@ -37,7 +37,7 @@ export const predictionService = {
     };
 
     const response: PredictionResponse = {
-      overlay_image: segmentation.maskImageUri,
+      overlay_image: segmentation.overlayImageUri,
       raw_mask: segmentation.maskImageUri,
       stats: {
         tumor_area: segmentation.tumorAreaMm2 || 0,

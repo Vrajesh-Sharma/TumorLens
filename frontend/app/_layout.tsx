@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { ActivityIndicator, View, Platform } from 'react-native';
+import { View, Platform, Appearance, LogBox } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
+import * as SecureStore from 'expo-secure-store';
 import '../global.css';
 
+LogBox.ignoreLogs(['Method getInfoAsync imported from "expo-file-system" is deprecated']);
+
+import { useAppStore } from '../store/appStore';
 import { OfflineBanner } from '../components/offline/OfflineUI';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ToastContainer } from '../components/Toast';
@@ -46,21 +50,13 @@ function NavigationGate() {
     }
   }, [isAuthenticated, isLoading, segments, userRole]);
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-background dark:bg-background-dark items-center justify-center">
-        <ActivityIndicator size="large" color="#0B57D0" />
-      </View>
-    );
-  }
-
   return (
-    <View className="flex-1 bg-[#0B0F19]">
+    <View className="flex-1 bg-background dark:bg-background-dark">
       <OfflineBanner />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#0B0F19' },
+          contentStyle: { backgroundColor: 'transparent' },
           animation: 'slide_from_right',
         }}
       >
@@ -73,8 +69,22 @@ function NavigationGate() {
   );
 }
 
+function ThemeApplier() {
+  const themeMode = useAppStore((s) => s.themeMode);
+
+  useEffect(() => {
+    if (themeMode === 'system') {
+      Appearance.setColorScheme(null);
+    } else {
+      Appearance.setColorScheme(themeMode);
+    }
+  }, [themeMode]);
+
+  return null;
+}
+
 export default function RootLayout() {
-  const [ready, setReady] = useState(false);
+  const setThemeMode = useAppStore((s) => s.setThemeMode);
 
   useEffect(() => {
     async function prepare() {
@@ -83,25 +93,26 @@ export default function RootLayout() {
           await storageService.init();
         }
         await notificationService.requestPermissions();
+
+        const savedTheme = await SecureStore.getItemAsync('THEME_MODE');
+        if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
+          setThemeMode(savedTheme);
+        }
       } catch (err) {
         console.error('[RootLayout] Init error:', err);
       } finally {
-        setReady(true);
         SplashScreen.hideAsync();
       }
     }
     prepare();
-  }, []);
-
-  if (!ready) {
-    return null;
-  }
+  }, [setThemeMode]);
 
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
+            <ThemeApplier />
             <NavigationGate />
             <ToastContainer />
             <LoadingOverlay />

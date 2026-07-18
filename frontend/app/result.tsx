@@ -159,10 +159,16 @@ export default function ResultScreen() {
   const enhancingCount = perClass.enhancing_tumor || 0;
   const totalPixels = bgCount + necroticCount + edemaCount || 1;
 
-  const overlaySourceUri = prediction.overlay_image.startsWith('data:')
+  const overlaySourceUri = prediction.overlay_image?.startsWith('data:')
     ? prediction.overlay_image
     : prediction.overlay_image
       ? `data:image/png;base64,${prediction.overlay_image}`
+      : null;
+
+  const maskSourceUri = prediction.raw_mask?.startsWith('data:')
+    ? prediction.raw_mask
+    : prediction.raw_mask
+      ? `data:image/png;base64,${prediction.raw_mask}`
       : null;
 
   const legendItems: LegendItem[] = [
@@ -175,11 +181,13 @@ export default function ResultScreen() {
   const handleSaveReport = async () => {
     setIsSaving(true);
     try {
+      const patientName = params.fileName?.trim() || (currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient');
       const reportData: import('../types/report').Report = {
         id: `REP-${Date.now()}`,
-        patientName: currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient',
+        patientName,
         originalImageUri: localImageUri || '',
         overlayImageUri: overlaySourceUri || '',
+        maskImageUri: maskSourceUri || undefined,
         tumorStats: {
           tumor_area: prediction.tumor_area,
           per_class_counts: perClass,
@@ -209,9 +217,10 @@ export default function ResultScreen() {
 
   const buildTempReport = () => ({
     id: `temp_${Date.now()}`,
-    patientName: currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient',
+    patientName: params.fileName?.trim() || (currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient'),
     originalImageUri: localImageUri || '',
     overlayImageUri: overlaySourceUri || '',
+    maskImageUri: maskSourceUri || undefined,
     tumorStats: {
       tumor_area: prediction.tumor_area,
       per_class_counts: perClass,
@@ -298,6 +307,7 @@ export default function ResultScreen() {
           <MriViewer
             originalUri={localImageUri}
             overlayUri={overlaySourceUri}
+            maskUri={maskSourceUri}
             overlayOpacity={overlayOpacity}
           />
         </View>

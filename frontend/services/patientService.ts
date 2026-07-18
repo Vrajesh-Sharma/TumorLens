@@ -12,7 +12,8 @@ class PatientServiceImpl {
     return patients.map(patient => ({
       ...patient,
       reports: allReports.filter(r =>
-        r.patientName.toLowerCase().trim() === patient.name.toLowerCase().trim()
+        (r.patientId && r.patientId === patient.id) ||
+        (!r.patientId && r.patientName.toLowerCase().trim() === patient.name.toLowerCase().trim())
       ),
     }));
   }

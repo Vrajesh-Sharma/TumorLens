@@ -144,6 +144,7 @@ export default function UploadScreen() {
       id: scanId,
       originalImageUri: selectedImage.uri,
       maskImageUri: '',
+      overlayImageUri: '',
       predictionScore: 0,
       tumorDetected: false,
       createdAt: new Date().toISOString(),

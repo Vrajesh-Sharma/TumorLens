@@ -9,7 +9,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export function SearchBar({ value, onChangeText, placeholder = 'Search patient name or report ID...' }: SearchBarProps) {
+export const SearchBar = React.memo(function SearchBar({ value, onChangeText, placeholder = 'Search patient name or report ID...' }: SearchBarProps) {
   const { colors, isDark } = useTheme();
   const inputRef = useRef<TextInput>(null);
 
@@ -39,6 +39,6 @@ export function SearchBar({ value, onChangeText, placeholder = 'Search patient n
       )}
     </View>
   );
-}
+});
 
 export default SearchBar;

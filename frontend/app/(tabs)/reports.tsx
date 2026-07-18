@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, Text, Alert, FlatList, useWindowDimensions } from 'react-native';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
@@ -65,7 +65,7 @@ function SkeletonCard() {
   );
 }
 
-export default function ReportsScreen() {
+const ReportsScreen = React.memo(function ReportsScreen() {
   const { colors, isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -86,24 +86,24 @@ export default function ReportsScreen() {
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
 
   // Handle report detail navigation
-  const handleOpenReport = (reportId: string) => {
+  const handleOpenReport = useCallback((reportId: string) => {
     router.push({
       pathname: '/report-details',
       params: { id: reportId }
     });
-  };
+  }, []);
 
   // Handle report PDF sharing
-  const handleShareReport = async (report: Report) => {
+  const handleShareReport = useCallback(async (report: Report) => {
     try {
       await pdfExportService.shareReportPdf(report);
     } catch (err: any) {
       Alert.alert('Sharing Failure', 'Unable to execute native document sharing. ' + err.message);
     }
-  };
+  }, []);
 
   // Handle report deletion confirmation
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
 
     try {
@@ -113,7 +113,7 @@ export default function ReportsScreen() {
     } catch (err: any) {
       Alert.alert('Deletion Failure', 'Could not delete record. ' + err.message);
     }
-  };
+  }, [deleteTarget, deleteReport]);
 
   return (
     <ScreenContainer scrollable={false}>
@@ -202,4 +202,6 @@ export default function ReportsScreen() {
       />
     </ScreenContainer>
   );
-}
+});
+
+export default ReportsScreen;

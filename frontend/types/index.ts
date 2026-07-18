@@ -21,7 +21,8 @@ export interface BoundingBox {
 export interface SegmentationResponse {
   id: string;
   originalImageUri: string;
-  maskImageUri: string;         // Segmented tumor overlay mask URI/Base64
+  maskImageUri: string;         // Binary mask URI/Base64 (white tumor on black background)
+  overlayImageUri: string;      // Semi-transparent overlay URI/Base64 (red tumor on transparent)
   predictionScore: number;      // Confidence from softmax output (e.g., 0.985 for 98.5%)
   tumorDetected: boolean;
   tumorAreaPx?: number;         // Area of tumor in pixels

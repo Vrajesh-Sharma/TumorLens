@@ -10,6 +10,8 @@ import { QueueStatus, StorageUsageCard } from '../../components/offline/OfflineU
 import { useTheme } from '../../theme';
 import { Directory, Paths } from 'expo-file-system';
 import { router } from 'expo-router';
+import { useAppStore } from '../../store/appStore';
+import * as SecureStore from 'expo-secure-store';
 
 export default function SettingsScreen() {
   const { colors, isDark } = useTheme();
@@ -18,12 +20,18 @@ export default function SettingsScreen() {
   const { user, logout } = useAuth();
   const offline = useOffline();
   const cache = useCache();
+  const themeMode = useAppStore((s) => s.themeMode);
+  const setThemeMode = useAppStore((s) => s.setThemeMode);
 
   // Settings State Hooks
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [language, setLanguage] = useState('English (US)');
-  const [darkMode, setDarkMode] = useState(isDark);
+  const [darkMode, setDarkMode] = useState(themeMode === 'dark' || (themeMode === 'system' && isDark));
   const [dbSizeStr, setDbSizeStr] = useState('0.00 KB');
+
+  useEffect(() => {
+    setDarkMode(themeMode === 'dark' || (themeMode === 'system' && isDark));
+  }, [themeMode, isDark]);
 
   // Format database size
   useEffect(() => {
@@ -170,7 +178,12 @@ export default function SettingsScreen() {
             subtitle="Toggle high-contrast radiology theme" 
             hasSwitch 
             switchValue={darkMode}
-            onSwitchChange={setDarkMode}
+            onSwitchChange={(val) => {
+              setDarkMode(val);
+              const mode = val ? 'dark' : 'light';
+              setThemeMode(mode);
+              SecureStore.setItemAsync('THEME_MODE', mode);
+            }}
           />
         </ProfileSection>
 
