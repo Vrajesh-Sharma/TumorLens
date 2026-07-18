@@ -22,7 +22,7 @@ export function MedicalInput({
   keyboardType = 'default',
   autoCapitalize = 'none'
 }: InputProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <View className="mb-4">
@@ -57,7 +57,7 @@ export function PasswordInput({
   error,
   label
 }: Omit<InputProps, 'keyboardType' | 'autoCapitalize'>) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
 
   return (

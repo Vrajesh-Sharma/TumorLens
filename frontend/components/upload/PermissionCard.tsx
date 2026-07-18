@@ -10,7 +10,7 @@ interface PermissionCardProps {
 }
 
 export function PermissionCard({ type, onRequestPermission }: PermissionCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   const isCamera = type === 'camera';
   const iconName = isCamera ? 'camera-outline' : 'images-outline';

@@ -14,7 +14,7 @@ import { useAppStore } from '../../store/appStore';
 import * as SecureStore from 'expo-secure-store';
 
 export default function SettingsScreen() {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const { user, logout } = useAuth();

@@ -22,10 +22,10 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
-  const { login, loginBiometric, isBiometricEnrolled, isBiometricSupported } = useAuth();
+  const { login, loginBiometric, isBiometricEnrolled } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormValues>({

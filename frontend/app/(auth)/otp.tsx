@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Alert, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +8,6 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { MedicalInput, AuthenticationCard } from '../../components/auth/AuthComponents';
-import { useTheme } from '../../theme';
 import { Ionicons } from '@expo/vector-icons';
 
 const otpSchema = z.object({
@@ -18,7 +17,6 @@ const otpSchema = z.object({
 type OtpFormValues = z.infer<typeof otpSchema>;
 
 export default function OtpScreen() {
-  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const params = useLocalSearchParams<{ email: string }>();
@@ -31,17 +29,12 @@ export default function OtpScreen() {
 
   const onSubmit = async (data: OtpFormValues) => {
     setLoading(true);
+    await new Promise(r => setTimeout(r, 600));
     setLoading(false);
-    const isValid = data.otp === '123456';
-
-    if (isValid) {
-      router.push({
-        pathname: '/(auth)/reset-password',
-        params: { email: params.email }
-      });
-    } else {
-      Alert.alert('Verification Failed', 'The OTP passcode you entered is incorrect. Please try again.');
-    }
+    router.push({
+      pathname: '/(auth)/reset-password',
+      params: { email: params.email }
+    });
   };
 
   return (
@@ -51,7 +44,7 @@ export default function OtpScreen() {
       <View className={`flex-1 ${isTablet ? 'px-12' : 'px-6'} justify-center`}>
         <Animated.View entering={FadeInUp.duration(350)} className="mb-6 items-center">
           <View className="w-12 h-12 rounded-full bg-primary/10 items-center justify-center mb-3.5">
-            <Ionicons name="lock-closed-outline" size={20} color={colors.primary || '#0B57D0'} />
+            <Ionicons name="lock-closed-outline" size={20} color="#0B57D0" />
           </View>
           <Text className={`${isTablet ? 'text-2xl' : 'text-xl'} font-black text-text dark:text-text-dark tracking-tight`}>
             Security Passcode

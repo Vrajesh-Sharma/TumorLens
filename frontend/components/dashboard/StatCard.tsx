@@ -23,7 +23,7 @@ export function StatCard({
   color = '#0B57D0',
   delayIndex = 0,
 }: StatCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   // Get trend details
   const getTrendStyles = () => {

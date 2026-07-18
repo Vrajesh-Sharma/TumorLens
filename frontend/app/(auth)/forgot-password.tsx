@@ -8,7 +8,6 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { MedicalInput, AuthenticationCard } from '../../components/auth/AuthComponents';
-import { useTheme } from '../../theme';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: 'Enter a valid institutional email address' })
@@ -17,7 +16,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordScreen() {
-  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const [loading, setLoading] = useState(false);
@@ -29,6 +27,7 @@ export default function ForgotPasswordScreen() {
 
   const onSubmit = async (data: ForgotPasswordValues) => {
     setLoading(true);
+    await new Promise(r => setTimeout(r, 800));
     setLoading(false);
     Alert.alert(
       'Recovery Email Dispatched',

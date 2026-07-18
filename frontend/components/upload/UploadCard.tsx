@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
+import AnimatedPressable from '../common/AnimatedPressable';
 
 interface UploadCardProps {
   onGalleryPress: () => void;
@@ -10,10 +11,8 @@ interface UploadCardProps {
   onFilePickerPress?: () => void;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export function UploadCard({ onGalleryPress, onCameraPress, onFilePickerPress }: UploadCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   // Shared values for scale animations on buttons
   const galleryScale = useSharedValue(1);

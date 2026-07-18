@@ -234,7 +234,7 @@ export default function HomeScreen() {
                     tumorAreaMm2: report.tumorStats?.tumor_area || 0,
                     tumorAreaPercentage: report.tumorStats?.tumor_area || 0,
                     tumorDetected: report.tumorDetected,
-                    predictionScore: 0,
+                    predictionScore: report.tumorStats?.tumor_area || 0,
                     status: report.tumorDetected ? 'Completed' as const : 'Completed' as const,
                     imageUri: report.originalImageUri ? { uri: report.originalImageUri } : null,
                   }}

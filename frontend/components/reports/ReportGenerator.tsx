@@ -38,7 +38,7 @@ export function ReportGenerator({
   onExportPdf,
 }: ReportGeneratorProps) {
   const { colors, isDark } = useTheme();
-  const deviceName = device || Platform.OS === 'web' ? 'Web Browser' : `${Platform.OS === 'ios' ? 'iOS' : 'Android'} Device`;
+  const deviceName = device || (Platform.OS === 'web' ? 'Web Browser' : `${Platform.OS === 'ios' ? 'iOS' : 'Android'} Device`);
 
   const total = (perClassCounts.background || 0) + (perClassCounts.necrotic_core || 0) + (perClassCounts.edema || 0) + (perClassCounts.enhancing_tumor || 0) || 1;
   const getPercent = (count: number) => ((count / total) * 100).toFixed(2);

@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { config } from '../config';
+import { emitAuthFailure } from './authEvents';
 
 export const API_BASE_URL = config.api.baseUrl;
 
@@ -42,7 +43,7 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     if (__DEV__) {
       console.warn('[API Client Error]', {
         message: error.message,
@@ -55,7 +56,12 @@ apiClient.interceptors.response.use(
     const data = error.response?.data as Record<string, string> | undefined;
 
     if (status === 401) {
-      SecureStore.deleteItemAsync('JWT_TOKEN');
+      try {
+        await SecureStore.deleteItemAsync('JWT_TOKEN');
+        await SecureStore.deleteItemAsync('REFRESH_TOKEN');
+        await SecureStore.deleteItemAsync('USER_PROFILE');
+      } catch {}
+      emitAuthFailure();
     }
 
     return Promise.reject(

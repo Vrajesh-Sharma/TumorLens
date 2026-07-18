@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, Alert, useWindowDimensions } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,7 +8,6 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { PasswordInput, AuthenticationCard } from '../../components/auth/AuthComponents';
-import { useTheme } from '../../theme';
 
 const resetSchema = z.object({
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
@@ -21,10 +20,8 @@ const resetSchema = z.object({
 type ResetFormValues = z.infer<typeof resetSchema>;
 
 export default function ResetPasswordScreen() {
-  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
-  const params = useLocalSearchParams<{ email: string }>();
   const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit, formState: { errors } } = useForm<ResetFormValues>({
@@ -34,6 +31,7 @@ export default function ResetPasswordScreen() {
 
   const onSubmit = async (data: ResetFormValues) => {
     setLoading(true);
+    await new Promise(r => setTimeout(r, 800));
     setLoading(false);
 
     Alert.alert(

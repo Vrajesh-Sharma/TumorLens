@@ -4,19 +4,23 @@ import type { NotificationConfig } from '../components/notifications/ResultNotif
 export function useNotificationPopUp() {
   const [currentNotification, setCurrentNotification] = useState<NotificationConfig | null>(null);
   const queueRef = useRef<NotificationConfig[]>([]);
+  const activeRef = useRef(false);
 
   const show = useCallback((config: NotificationConfig) => {
-    if (currentNotification) {
+    if (activeRef.current) {
       queueRef.current.push(config);
       return;
     }
+    activeRef.current = true;
     setCurrentNotification(config);
-  }, [currentNotification]);
+  }, []);
 
   const dismiss = useCallback(() => {
     setCurrentNotification(null);
+    activeRef.current = false;
     const next = queueRef.current.shift();
     if (next) {
+      activeRef.current = true;
       setCurrentNotification(next);
     }
   }, []);

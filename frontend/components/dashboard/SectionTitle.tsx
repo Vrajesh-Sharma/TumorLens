@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { useTheme } from '../../theme';
 
 interface SectionTitleProps {
   title: string;
@@ -18,7 +17,6 @@ export function SectionTitle({
   onRightPress,
   delay = 200,
 }: SectionTitleProps) {
-  const { colors } = useTheme();
 
   return (
     <Animated.View

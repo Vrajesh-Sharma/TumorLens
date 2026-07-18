@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { useTheme } from '../../theme';
 import { Ionicons } from '@expo/vector-icons';
 import { ReportStatistics } from '../../types/report';
 
@@ -9,12 +8,11 @@ interface StatisticsRowProps {
 }
 
 export const StatisticsRow = React.memo(function StatisticsRow({ stats }: StatisticsRowProps) {
-  const { colors, isDark } = useTheme();
 
-  const Card = ({ label, count, icon, color, bg }: { label: string; count: number | string; icon: string; color: string; bg: string }) => (
+  const Card = ({ label, count, icon, color, bg }: { label: string; count: number | string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }) => (
     <View className={`flex-1 p-3.5 rounded-xl border border-border/20 dark:border-border-dark/20 ${bg} flex-row items-center gap-3 shadow-sm`}>
       <View className={`w-8 h-8 rounded-full items-center justify-center ${color}`}>
-        <Ionicons name={icon as any} size={15} color="#FFFFFF" />
+        <Ionicons name={icon} size={15} color="#FFFFFF" />
       </View>
       <View className="flex-1">
         <Text className="text-[9px] font-bold text-subText dark:text-subText-dark uppercase tracking-wider truncate" numberOfLines={1}>{label}</Text>

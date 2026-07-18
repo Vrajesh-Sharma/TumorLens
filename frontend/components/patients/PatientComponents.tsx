@@ -64,7 +64,7 @@ export function PatientCard({ patient, index, onPress }: PatientCardProps) {
 }
 
 export function PatientHeader({ title, subtitle, onBack }: { title: string; subtitle?: string; onBack?: () => void }) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <View className="flex-row items-center justify-between pb-4 border-b border-border/20 dark:border-border-dark/20 px-5 pt-3">

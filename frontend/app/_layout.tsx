@@ -7,10 +7,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SecureStore from 'expo-secure-store';
-import '../global.css';
-
-LogBox.ignoreLogs(['Method getInfoAsync imported from "expo-file-system" is deprecated']);
-
 import { useAppStore } from '../store/appStore';
 import { OfflineBanner } from '../components/offline/OfflineUI';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -18,6 +14,9 @@ import { ToastContainer } from '../components/Toast';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { notificationService } from '../services/notifications';
 import { storageService } from '../services/storageService';
+import '../global.css';
+
+LogBox.ignoreLogs(['Method getInfoAsync imported from "expo-file-system" is deprecated']);
 
 SplashScreen.preventAutoHideAsync();
 

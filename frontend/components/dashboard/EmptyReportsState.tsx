@@ -10,7 +10,7 @@ interface EmptyReportsStateProps {
 }
 
 export function EmptyReportsState({ onUploadPress }: EmptyReportsStateProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <Animated.View

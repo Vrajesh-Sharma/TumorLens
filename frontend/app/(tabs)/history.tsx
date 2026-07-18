@@ -3,13 +3,13 @@ import { View, FlatList, Pressable, Text, useWindowDimensions } from 'react-nati
 import { router } from 'expo-router';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { PatientHeader, PatientCard } from '../../components/patients/PatientComponents';
-import SearchBar from '../../components/reports/SearchBar';
+import { SearchBar } from '../../components/reports/SearchBar';
 import { usePatients } from '../../hooks/usePatients';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 
 export default function HistoryScreen() {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const { filteredPatients, isLoading, searchQuery, setSearchQuery } = usePatients();

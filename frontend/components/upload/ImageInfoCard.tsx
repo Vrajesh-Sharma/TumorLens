@@ -11,7 +11,7 @@ interface ImageInfoCardProps {
 }
 
 export function ImageInfoCard({ image }: ImageInfoCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const metadata = extractImageMetadata(image);
 
   // Helper row renderer

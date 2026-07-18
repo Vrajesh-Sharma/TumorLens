@@ -59,13 +59,13 @@ export default function ResultScreen() {
     if (localImageUri && !permanentImageUri) {
       copyToPermanentStorage(localImageUri).then(setPermanentImageUri);
     }
-  }, [localImageUri]);
+  }, [localImageUri, permanentImageUri]);
 
   useEffect(() => {
     if (localImageUri && !prediction && status === 'idle') {
       startPrediction(localImageUri);
     }
-  }, [localImageUri]);
+  }, [localImageUri, prediction, status, startPrediction]);
 
   useEffect(() => {
     if (status === 'success' && prediction) {
@@ -76,14 +76,14 @@ export default function ResultScreen() {
           ? `Tumor area: ${prediction.tumor_area.toFixed(1)}% — Review recommended`
           : `No anomalies found. Confidence: ${formatConfidence(prediction.confidence || 0)}`,
         actions: [
-          { label: 'View Report', onPress: () => { dismissNotif(); } },
-          { label: 'Dismiss', onPress: () => dismissNotif() },
+          { label: 'View Report', onPress: () => {} },
+          { label: 'Dismiss', onPress: () => {} },
         ],
         icon: prediction.detection_flag ? 'warning-outline' : 'checkmark-circle-outline',
         duration: prediction.detection_flag ? 0 : 4000,
       });
     }
-  }, [status, prediction]);
+  }, [status, prediction, dismissNotif, showNotif]);
 
   const handleRetry = () => {
     resetPrediction();

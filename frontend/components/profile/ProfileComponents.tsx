@@ -31,7 +31,6 @@ interface DoctorCardProps {
 }
 
 export function DoctorCard({ user }: DoctorCardProps) {
-  const { colors } = useTheme();
   const roleLabel = user.role === 'radiologist' ? 'Radiologist' : 'Doctor';
 
   return (
@@ -80,7 +79,7 @@ export function SettingsItem({
   onPress,
   destructive = false
 }: SettingsItemProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <Pressable

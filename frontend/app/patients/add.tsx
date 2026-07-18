@@ -6,11 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
-import AppHeader from '../../components/ui/navigation/AppHeader';
+import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { MedicalInput } from '../../components/auth/AuthComponents';
 import { usePatients } from '../../hooks/usePatients';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../theme';
 
 const patientSchema = z.object({
   name: z.string().min(3, { message: 'Full name must be at least 3 characters' }),
@@ -27,7 +26,7 @@ const patientSchema = z.object({
 type PatientFormValues = z.infer<typeof patientSchema>;
 
 export default function AddPatientScreen() {
-  const { colors, isDark } = useTheme();
+
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const { user } = useAuth();

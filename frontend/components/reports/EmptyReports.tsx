@@ -9,7 +9,7 @@ interface EmptyReportsProps {
 }
 
 export function EmptyReports({ type, query }: EmptyReportsProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   const getContent = () => {
     switch (type) {
@@ -40,7 +40,7 @@ export function EmptyReports({ type, query }: EmptyReportsProps) {
   return (
     <View className="flex-1 py-14 px-6 items-center justify-center">
       <View className="w-14 h-14 rounded-full bg-border/20 dark:bg-border-dark/20 items-center justify-center mb-4">
-        <Ionicons name={content.icon as any} size={26} color={isDark ? '#C4C7C5' : '#5F6368'} />
+        <Ionicons name={content.icon as keyof typeof Ionicons.glyphMap} size={26} color={isDark ? '#C4C7C5' : '#5F6368'} />
       </View>
       
       <Text className="text-sm font-bold text-text dark:text-text-dark text-center">

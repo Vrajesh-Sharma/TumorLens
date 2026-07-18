@@ -1,18 +1,17 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
+import AnimatedPressable from '../common/AnimatedPressable';
 
 interface AnalysisButtonProps {
   onPress: () => void;
   disabled: boolean;
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export function AnalysisButton({ onPress, disabled }: AnalysisButtonProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => {

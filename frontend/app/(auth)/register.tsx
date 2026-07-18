@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Alert, ScrollView, useWindowDimensions } from 'react-native';
+import { Text, Pressable, ActivityIndicator, ScrollView, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,6 @@ import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { MedicalInput, PasswordInput, AuthenticationCard } from '../../components/auth/AuthComponents';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../theme';
 
 const registerSchema = z.object({
   name: z.string().min(3, { message: 'Full name must be at least 3 characters' }),
@@ -27,7 +26,7 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
-  const { colors, isDark } = useTheme();
+
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const { register } = useAuth();

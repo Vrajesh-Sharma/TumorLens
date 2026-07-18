@@ -15,7 +15,7 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report, index, onOpen, onFavorite, onShare, onDelete }: ReportCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   const isAnomaly = report.tumorDetected;
   const dateStr = new Date(report.timestamp).toLocaleDateString(undefined, {

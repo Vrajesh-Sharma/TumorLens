@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, Text, Pressable, Image, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import Animated, { FadeInUp, FadeIn } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
-import { useTheme } from '../../theme';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function WelcomeScreen() {
-  const { colors, isDark } = useTheme();
+
   const { width, height } = useWindowDimensions();
   const isSmall = width < 375;
   const isTablet = width >= 768;

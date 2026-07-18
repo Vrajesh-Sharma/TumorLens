@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn, FadeInUp, FadeOutUp } from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useOffline } from '../../hooks/useOffline';
 import { useCache } from '../../hooks/useCache';
-import { useTheme } from '../../theme';
 
 import { SyncQueueItem } from '../../services/syncQueueService';
 

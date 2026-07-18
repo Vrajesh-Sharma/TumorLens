@@ -19,7 +19,7 @@ export function AIStatusCard({
   accuracy = 'Dice Score 0.82',
   healthStatus = 'Healthy',
 }: AIStatusCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <Animated.View

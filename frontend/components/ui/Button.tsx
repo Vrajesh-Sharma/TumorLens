@@ -15,24 +15,24 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps) {
-  let bgStyle = 'bg-primary';
+  let bgStyle = 'bg-primary dark:bg-primary-dark';
   let textStyle = 'text-text-light';
 
   switch (variant) {
     case 'secondary':
-      bgStyle = 'bg-surface border border-border';
-      textStyle = 'text-text';
+      bgStyle = 'bg-surface dark:bg-surface-dark border border-border dark:border-border-dark';
+      textStyle = 'text-text dark:text-text-dark';
       break;
     case 'success':
-      bgStyle = 'bg-success';
+      bgStyle = 'bg-success dark:bg-success-dark';
       textStyle = 'text-text-light';
       break;
     case 'danger':
-      bgStyle = 'bg-danger';
+      bgStyle = 'bg-danger dark:bg-danger-dark';
       textStyle = 'text-text-light';
       break;
     default:
-      bgStyle = 'bg-primary';
+      bgStyle = 'bg-primary dark:bg-primary-dark';
       textStyle = 'text-text-light';
       break;
   }

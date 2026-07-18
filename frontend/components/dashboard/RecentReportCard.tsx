@@ -3,7 +3,6 @@ import { View, Text, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
-import { formatScanDate } from '../../utils';
 import type { ImageSourcePropType } from 'react-native';
 
 interface RecentReportCardReport {

@@ -28,7 +28,21 @@ class SyncQueueServiceImpl {
 
   async getAll(): Promise<SyncQueueItem[]> {
     const items = await storageService.getCollection<SyncQueueItem>(COLLECTION);
-    return items.filter(i => i.status !== 'processing')
+    const staleTimeout = 5 * 60 * 1000;
+    const now = Date.now();
+    const recovered: SyncQueueItem[] = [];
+    for (const item of items) {
+      if (item.status === 'processing' && now - new Date(item.timestamp).getTime() > staleTimeout) {
+        item.status = 'pending';
+        await storageService.updateItem(COLLECTION, item.id, { status: 'pending' } as any);
+        recovered.push(item);
+      }
+    }
+    if (recovered.length > 0) {
+      console.warn(`[syncQueue] Recovered ${recovered.length} stuck processing items`);
+    }
+    return items
+      .filter(i => i.status !== 'processing')
       .sort((a, b) => b.priority - a.priority || new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }
 

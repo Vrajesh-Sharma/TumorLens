@@ -2,10 +2,8 @@ import React from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSync, SyncStatusType } from '../../hooks/useSync';
-import { useTheme } from '../../theme';
 
 export function SyncStatusCard() {
-  const { colors, isDark } = useTheme();
   const { syncStatus, lastSynced, syncNow } = useSync();
 
   const getStatusConfig = (status: SyncStatusType) => {
@@ -65,10 +63,10 @@ export function SyncStatusCard() {
   return (
     <View className={`p-4 border ${config.border} rounded-2xl ${config.bg} flex-row items-center gap-3.5 shadow-xs`}>
       <View className="p-2 rounded-full bg-white dark:bg-slate-900 shadow-sm">
-        {syncStatus === 'uploading' ? (
+          {syncStatus === 'uploading' ? (
           <ActivityIndicator size="small" color="#0B57D0" />
         ) : (
-          <Ionicons name={config.icon as any} size={20} className={config.color} />
+          <Ionicons name={config.icon as keyof typeof Ionicons.glyphMap} size={20} color="#0B57D0" />
         )}
       </View>
 

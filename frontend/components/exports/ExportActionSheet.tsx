@@ -46,7 +46,7 @@ const EXPORT_OPTIONS = [
 ];
 
 export default function ExportActionSheet({ visible, onClose, report, overlayBase64, onExportComplete }: Props) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const [exporting, setExporting] = React.useState<string | null>(null);
 
   const handleExport = async (id: string) => {

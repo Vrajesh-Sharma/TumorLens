@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert } from 'react-native';
 import type { UserRole } from '../types';
+import { addAuthFailureListener } from '../services/authEvents';
 
 export interface UserProfile {
   id: string;
@@ -76,6 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     initializeAuth();
+
+    const unsub = addAuthFailureListener(() => {
+      setUser(null);
+      setIsAuthenticated(false);
+    });
+    return unsub;
   }, []);
 
   const persistSession = async (data: ReturnType<typeof createLocalUser>) => {

@@ -12,7 +12,7 @@ interface UploadTipCardProps {
 }
 
 export function UploadTipCard({ title, description, iconName, delayIndex = 0 }: UploadTipCardProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
 
   return (
     <Animated.View

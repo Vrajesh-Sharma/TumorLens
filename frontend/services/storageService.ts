@@ -1,4 +1,5 @@
 import { Paths, Directory, File } from 'expo-file-system';
+import { AppState } from 'react-native';
 
 export interface Storable {
   id: string;
@@ -30,6 +31,12 @@ class StorageServiceImpl {
       }
     }
     this.initialized = true;
+
+    AppState.addEventListener('change', (state) => {
+      if (state === 'background' || state === 'inactive') {
+        this.flushAll();
+      }
+    });
   }
 
   private file(collection: string): File {
@@ -37,12 +44,13 @@ class StorageServiceImpl {
   }
 
   async readJSON<T extends Storable>(collection: string): Promise<T[]> {
+    const f = this.file(collection);
+    if (!(await f.exists)) return [];
     try {
-      const f = this.file(collection);
-      if (!(await f.exists)) return [];
       const content = await f.text();
       return JSON.parse(content);
     } catch {
+      console.error(`[storageService] Corrupted JSON in ${collection}. Data preserved in file, returning empty.`);
       return [];
     }
   }

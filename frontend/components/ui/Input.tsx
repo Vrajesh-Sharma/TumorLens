@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TextInputProps, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -20,13 +21,20 @@ export function Input({
   containerClassName = '',
   className = '',
   secureTextEntry,
+  onFocus,
+  onBlur,
   ...props
 }: InputProps) {
+  const { isDark } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const isPassword = secureTextEntry;
   const effectiveSecureText = isPassword ? !isPasswordVisible : false;
+
+  const iconColor = isFocused
+    ? (isDark ? '#A8C7FA' : '#0B57D0')
+    : (isDark ? '#9AA0A6' : '#5F6368');
 
   const focusRingClass = isFocused
     ? 'border-primary dark:border-primary-dark'
@@ -48,15 +56,15 @@ export function Input({
           <Ionicons
             name={leftIcon}
             size={18}
-            color={isFocused ? '#0B57D0' : '#5F6368'}
+            color={iconColor}
             className="mr-2"
           />
         )}
         <TextInput
           className={`flex-1 text-base text-text dark:text-text-dark h-full ${className}`}
-          placeholderTextColor="#5F6368"
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          placeholderTextColor={isDark ? '#9AA0A6' : '#5F6368'}
+          onFocus={(e) => { setIsFocused(true); onFocus?.(e); }}
+          onBlur={(e) => { setIsFocused(false); onBlur?.(e); }}
           secureTextEntry={effectiveSecureText}
           {...props}
         />
@@ -68,13 +76,13 @@ export function Input({
             <Ionicons
               name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
               size={18}
-              color="#5F6368"
+              color={iconColor}
             />
           </TouchableOpacity>
         )}
         {rightIcon && !isPassword && (
           <TouchableOpacity onPress={onRightIconPress} className="p-1">
-            <Ionicons name={rightIcon} size={18} color="#5F6368" />
+            <Ionicons name={rightIcon} size={18} color={iconColor} />
           </TouchableOpacity>
         )}
       </View>

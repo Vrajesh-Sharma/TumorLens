@@ -1,9 +1,8 @@
 import React from 'react';
-import { Pressable, Text, ActivityIndicator, View } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Text, ActivityIndicator, View } from 'react-native';
+import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+import AnimatedPressable from '../../common/AnimatedPressable';
 
 interface BaseButtonProps {
   onPress?: () => void;

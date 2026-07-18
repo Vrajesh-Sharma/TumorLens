@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, Modal, Pressable } from 'react-native';
-import { useTheme } from '../../theme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface DeleteDialogProps {
@@ -11,7 +10,6 @@ interface DeleteDialogProps {
 }
 
 export function DeleteDialog({ visible, patientName, onConfirm, onCancel }: DeleteDialogProps) {
-  const { colors, isDark } = useTheme();
 
   return (
     <Modal transparent visible={visible} animationType="fade">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, FlatList, useWindowDimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { PatientHeader } from '../../components/patients/PatientComponents';
@@ -7,7 +7,7 @@ import { usePatients } from '../../hooks/usePatients';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '../../theme';
-import ReportCard from '../../components/reports/ReportCard';
+import { ReportCard } from '../../components/reports/ReportCard';
 import { pdfExportService } from '../../services/pdfExport';
 
 export default function PatientDetailsScreen() {

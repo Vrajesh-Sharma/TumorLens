@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, Text, Alert, FlatList, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Alert, FlatList, useWindowDimensions } from 'react-native';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
-import { useTheme } from '../../theme';
 import { router } from 'expo-router';
 import Animated, { 
   useSharedValue, 
@@ -12,15 +11,15 @@ import Animated, {
 } from 'react-native-reanimated';
 
 // Custom components
-import SearchBar from '../../components/reports/SearchBar';
-import FilterChip from '../../components/reports/FilterChip';
-import StatisticsRow from '../../components/reports/StatisticsRow';
-import ReportCard from '../../components/reports/ReportCard';
-import EmptyReports from '../../components/reports/EmptyReports';
-import DeleteDialog from '../../components/reports/DeleteDialog';
+import { SearchBar } from '../../components/reports/SearchBar';
+import { FilterChip } from '../../components/reports/FilterChip';
+import { StatisticsRow } from '../../components/reports/StatisticsRow';
+import { ReportCard } from '../../components/reports/ReportCard';
+import { EmptyReports } from '../../components/reports/EmptyReports';
+import { DeleteDialog } from '../../components/reports/DeleteDialog';
 
 // Hook & Services
-import { useReports, ReportFilterType } from '../../hooks/useReports';
+import { useReports } from '../../hooks/useReports';
 import { pdfExportService } from '../../services/pdfExport';
 import { Report } from '../../types/report';
 
@@ -44,7 +43,7 @@ function SkeletonCard() {
       -1,
       true
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -66,7 +65,6 @@ function SkeletonCard() {
 }
 
 const ReportsScreen = React.memo(function ReportsScreen() {
-  const { colors, isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   
@@ -141,7 +139,7 @@ const ReportsScreen = React.memo(function ReportsScreen() {
                 key={chip.key}
                 label={chip.label}
                 selected={filter === chip.key}
-                onPress={() => setFilter(chip.key as any)}
+                onPress={() => setFilter(chip.key)}
               />
             ))}
           </ScrollView>

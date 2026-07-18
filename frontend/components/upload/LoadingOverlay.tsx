@@ -21,7 +21,7 @@ const MESSAGES = [
 ];
 
 export function LoadingOverlay({ visible, progress, onCancel }: LoadingOverlayProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {

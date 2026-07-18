@@ -4,6 +4,13 @@ import { preprocessImage, tensorToArrayBuffer } from '../utils/tensorUtils';
 import { parseOutputTensor, parseOutputTensorUint8 } from '../utils/maskUtils';
 import type { TensorDataType } from 'react-native-fast-tflite';
 
+let loadTensorflowModel: ((source: string, delegates?: string[]) => Promise<any>) | null = null;
+try {
+  loadTensorflowModel = require('react-native-fast-tflite').loadTensorflowModel;
+} catch {
+  console.warn('[AIService] react-native-fast-tflite not available');
+}
+
 export interface ModelTensorInfo {
   name: string;
   dataType: TensorDataType;
@@ -61,7 +68,7 @@ export const aiService: AIService = {
     cancelRequested = false;
 
     try {
-      const { loadTensorflowModel } = require('react-native-fast-tflite');
+      if (!loadTensorflowModel) throw new Error('TFLite module not available');
       tfliteModel = await loadTensorflowModel(MODEL_SOURCE, config.ai.delegates);
 
       detectedInputType = tfliteModel.inputs?.[0]?.dataType ?? null;
@@ -197,6 +204,9 @@ export const aiService: AIService = {
   async unloadModel(): Promise<void> {
     if (tfliteModel) {
       try {
+        if (typeof tfliteModel.close === 'function') {
+          await tfliteModel.close();
+        }
         tfliteModel = null;
         this.modelInfo.isLoaded = false;
       } catch (err) {
