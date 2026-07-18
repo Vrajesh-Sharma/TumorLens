@@ -13,6 +13,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ToastContainer } from '../components/Toast';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { notificationService } from '../services/notifications';
+import { storageService } from '../services/storageService';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -79,10 +80,7 @@ export default function RootLayout() {
     async function prepare() {
       try {
         if (Platform.OS !== 'web') {
-          const { DatabaseService } = await import('../database/DatabaseService');
-          const { StorageService } = await import('../database/StorageService');
-          DatabaseService.initDatabase();
-          await StorageService.initStorage();
+          await storageService.init();
         }
         await notificationService.requestPermissions();
       } catch (err) {

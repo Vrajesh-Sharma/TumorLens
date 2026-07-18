@@ -8,7 +8,6 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { MedicalInput, AuthenticationCard } from '../../components/auth/AuthComponents';
-import { authApi } from '../../backend/authApi';
 import { useTheme } from '../../theme';
 
 const forgotPasswordSchema = z.object({
@@ -30,23 +29,20 @@ export default function ForgotPasswordScreen() {
 
   const onSubmit = async (data: ForgotPasswordValues) => {
     setLoading(true);
-    const success = await authApi.forgotPassword(data.email);
     setLoading(false);
-    if (success) {
-      Alert.alert(
-        'Recovery Email Dispatched',
-        `A 6-digit OTP verification code has been dispatched to ${data.email}. (Demo Code: 123456)`,
-        [
-          {
-            text: 'Verify OTP',
-            onPress: () => router.push({
-              pathname: '/(auth)/otp',
-              params: { email: data.email }
-            })
-          }
-        ]
-      );
-    }
+    Alert.alert(
+      'Recovery Email Dispatched',
+      `A 6-digit OTP verification code has been dispatched to ${data.email}. (Demo Code: 123456)`,
+      [
+        {
+          text: 'Verify OTP',
+          onPress: () => router.push({
+            pathname: '/(auth)/otp',
+            params: { email: data.email }
+          })
+        }
+      ]
+    );
   };
 
   return (

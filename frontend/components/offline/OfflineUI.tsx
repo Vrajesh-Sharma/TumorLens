@@ -6,7 +6,7 @@ import { useOffline } from '../../hooks/useOffline';
 import { useCache } from '../../hooks/useCache';
 import { useTheme } from '../../theme';
 
-import { SyncQueueItem } from '../../repositories/SyncRepository';
+import { SyncQueueItem } from '../../services/syncQueueService';
 
 /**
  * 1. OfflineBanner

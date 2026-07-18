@@ -8,15 +8,17 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '../theme';
 import { formatConfidence } from '../utils';
 import { reportFormatter } from '../services/predictionService';
-import { pdfExportService } from '../services/pdfExport';
 import { useRequireAuth } from '../hooks/useRoleGuard';
 import { usePrediction } from '../hooks/usePrediction';
 import { useScanStore } from '../store';
 import { MriViewer, OpacitySlider, Legend } from '../components/viewer';
 import { ReportGenerator } from '../components/reports/ReportGenerator';
-import { ReportRepository } from '../repositories/ReportRepository';
-import { SyncRepository } from '../repositories/SyncRepository';
+import { reportService } from '../services/reportService';
+import { syncQueueService } from '../services/syncQueueService';
 import { notificationService } from '../services/notifications';
+import { useNotificationPopUp } from '../hooks/useNotificationPopUp';
+import ResultNotificationCard from '../components/notifications/ResultNotificationCard';
+import ExportActionSheet from '../components/exports/ExportActionSheet';
 import type { LegendItem } from '../components/viewer/Legend';
 
 export default function ResultScreen() {
@@ -30,6 +32,8 @@ export default function ResultScreen() {
 
   const [overlayOpacity, setOverlayOpacity] = useState(0.7);
   const [isSaving, setIsSaving] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const { currentNotification: notif, show: showNotif, dismiss: dismissNotif } = useNotificationPopUp();
 
   const localImageUri = params.imageUri || currentScan?.originalImageUri || null;
 
@@ -38,6 +42,24 @@ export default function ResultScreen() {
       startPrediction(localImageUri);
     }
   }, [localImageUri]);
+
+  useEffect(() => {
+    if (status === 'success' && prediction) {
+      showNotif({
+        type: prediction.detection_flag ? 'critical' : 'success',
+        title: prediction.detection_flag ? 'Tumor Detected' : 'Scan Complete — Healthy',
+        message: prediction.detection_flag
+          ? `Tumor area: ${prediction.tumor_area.toFixed(1)}% — Review recommended`
+          : `No anomalies found. Confidence: ${formatConfidence(prediction.confidence || 0)}`,
+        actions: [
+          { label: 'View Report', onPress: () => {} },
+          { label: 'Dismiss', onPress: () => dismissNotif() },
+        ],
+        icon: prediction.detection_flag ? 'warning-outline' : 'checkmark-circle-outline',
+        duration: prediction.detection_flag ? 0 : 4000,
+      });
+    }
+  }, [status, prediction]);
 
   const handleRetry = () => {
     resetPrediction();
@@ -170,8 +192,8 @@ export default function ResultScreen() {
         syncStatus: 'pending',
         modelUsed: clinicalReport.modelUsed,
       };
-      await ReportRepository.saveReport(reportData);
-      SyncRepository.addToQueue('insert_report', reportData);
+      await reportService.create(reportData);
+      await syncQueueService.add('insert_report', reportData);
       notificationService.scheduleReportSavedNotification(reportData.patientName);
       Alert.alert(
         'Report Saved',
@@ -185,57 +207,29 @@ export default function ResultScreen() {
     }
   };
 
+  const buildTempReport = () => ({
+    id: `temp_${Date.now()}`,
+    patientName: currentScan?.id ? `Scan ${currentScan.id.slice(-4)}` : 'Unknown Patient',
+    originalImageUri: localImageUri || '',
+    overlayImageUri: overlaySourceUri || '',
+    tumorStats: {
+      tumor_area: prediction.tumor_area,
+      per_class_counts: perClass,
+      inference_time: inferenceTime,
+      timestamp: stats.timestamp,
+    },
+    tumorDetected: isTumorDetected,
+    timestamp: stats.timestamp || new Date().toISOString(),
+    favorite: false,
+    modelUsed: clinicalReport.modelUsed,
+  });
+
   const handleShareReport = async () => {
-    try {
-      const report: import('../types/report').Report = {
-        id: `temp_${Date.now()}`,
-        patientName: 'Unknown Patient',
-        originalImageUri: localImageUri || '',
-        overlayImageUri: overlaySourceUri || '',
-        tumorStats: {
-          tumor_area: prediction.tumor_area,
-          per_class_counts: perClass,
-          inference_time: inferenceTime,
-          timestamp: stats.timestamp,
-        },
-        tumorDetected: isTumorDetected,
-        timestamp: stats.timestamp || new Date().toISOString(),
-        favorite: false,
-        modelUsed: clinicalReport.modelUsed,
-      };
-      await pdfExportService.shareReportPdf(report);
-    } catch (err: any) {
-      Alert.alert('Share Failed', 'Unable to share report: ' + err.message);
-    }
+    setShowExport(true);
   };
 
   const handleExportPdf = async () => {
-    try {
-      const report: import('../types/report').Report = {
-        id: `temp_${Date.now()}`,
-        patientName: 'Unknown Patient',
-        originalImageUri: localImageUri || '',
-        overlayImageUri: overlaySourceUri || '',
-        tumorStats: {
-          tumor_area: prediction.tumor_area,
-          per_class_counts: perClass,
-          inference_time: inferenceTime,
-          timestamp: stats.timestamp,
-        },
-        tumorDetected: isTumorDetected,
-        timestamp: stats.timestamp || new Date().toISOString(),
-        favorite: false,
-        modelUsed: clinicalReport.modelUsed,
-      };
-      const uri = await pdfExportService.exportReportToPdf(report);
-      Alert.alert(
-        'PDF Exported',
-        `Radiology report compiled successfully.\n\n${uri}`,
-        [{ text: 'OK' }]
-      );
-    } catch (err: any) {
-      Alert.alert('Export Failed', 'Unable to generate PDF: ' + err.message);
-    }
+    setShowExport(true);
   };
 
   return (
@@ -361,6 +355,16 @@ export default function ResultScreen() {
           </Pressable>
         </Animated.View>
       </ScrollView>
+
+      {notif && <ResultNotificationCard config={notif} onDismiss={dismissNotif} />}
+
+      <ExportActionSheet
+        visible={showExport}
+        onClose={() => setShowExport(false)}
+        report={buildTempReport()}
+        overlayBase64={overlaySourceUri}
+        onExportComplete={(msg) => Alert.alert('Export Complete', msg)}
+      />
     </ScreenContainer>
   );
 }

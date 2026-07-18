@@ -4,13 +4,13 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useTheme } from '../theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useReports } from '../hooks/useReports';
-import { pdfExportService } from '../services/pdfExport';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../components/ui/layout/Layouts';
 import { AppHeader } from '../components/ui/navigation/AppHeader';
 import { useRequireAuth } from '../hooks/useRoleGuard';
 import { MriViewer, OpacitySlider, Legend } from '../components/viewer';
 import { ReportGenerator } from '../components/reports/ReportGenerator';
+import ExportActionSheet from '../components/exports/ExportActionSheet';
 import type { LegendItem } from '../components/viewer/Legend';
 
 export default function ReportDetailsScreen() {
@@ -25,6 +25,7 @@ export default function ReportDetailsScreen() {
 
   const [notes, setNotes] = useState('');
   const [overlayOpacity, setOverlayOpacity] = useState(0.7);
+  const [showExport, setShowExport] = useState(false);
 
   useEffect(() => {
     if (report) {
@@ -77,25 +78,12 @@ export default function ReportDetailsScreen() {
     toggleFavorite(report.id);
   };
 
-  const handleExportPdf = async () => {
-    try {
-      const uri = await pdfExportService.exportReportToPdf(report);
-      Alert.alert(
-        'PDF Exported',
-        `Radiology diagnostic document compiled successfully.\n\nFile Path:\n${uri}`,
-        [{ text: 'Dismiss' }]
-      );
-    } catch (err: any) {
-      Alert.alert('Export Failed', 'Unable to compile PDF file: ' + err.message);
-    }
+  const handleExportPdf = () => {
+    setShowExport(true);
   };
 
-  const handleShare = async () => {
-    try {
-      await pdfExportService.shareReportPdf(report);
-    } catch (err: any) {
-      Alert.alert('Share Failed', 'Unable to launch system sharing: ' + err.message);
-    }
+  const handleShare = () => {
+    setShowExport(true);
   };
 
   const handleDelete = () => {
@@ -249,6 +237,14 @@ export default function ReportDetailsScreen() {
           </Pressable>
         </Animated.View>
       </ScrollView>
+
+      <ExportActionSheet
+        visible={showExport}
+        onClose={() => setShowExport(false)}
+        report={report}
+        overlayBase64={report.overlayImageUri}
+        onExportComplete={(msg) => Alert.alert('Export Complete', msg)}
+      />
     </ScreenContainer>
   );
 }

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { authApi, LoginResponse } from '../backend/authApi';
 import { Alert } from 'react-native';
 import type { UserRole } from '../types';
 
@@ -33,6 +32,30 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function generateLocalId(): string {
+  return 'usr_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function createLocalUser(email: string, name?: string) {
+  const isRadiologist = email.toLowerCase().includes('radiologist');
+  return {
+    token: 'local_' + Date.now().toString(36),
+    refreshToken: 'local_refresh_' + Date.now().toString(36),
+    user: {
+      id: generateLocalId(),
+      name: name || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+      email,
+      hospitalName: 'Local Device',
+      medicalLicenseId: 'LOCAL-' + Date.now().toString(36).toUpperCase(),
+      specialization: 'General Radiology',
+      department: 'Radiology',
+      phone: '',
+      photoUri: '',
+      role: (isRadiologist ? 'radiologist' : 'doctor') as UserRole,
+    },
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -67,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  const persistSession = async (data: LoginResponse) => {
+  const persistSession = async (data: ReturnType<typeof createLocalUser>) => {
     const userWithRole = data.user as UserProfile;
     setUser(userWithRole);
     setIsAuthenticated(true);
@@ -80,8 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, pass: string, rememberMe = true): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const data = await authApi.login(email, pass);
-
+      const data = createLocalUser(email);
       await persistSession(data);
 
       if (rememberMe) {
@@ -92,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (err: any) {
-      Alert.alert('Authentication Failed', err.response?.data?.message || 'Invalid medical credentials or password.');
+      Alert.alert('Authentication Failed', err.message || 'Invalid medical credentials or password.');
       return false;
     } finally {
       setIsLoading(false);
@@ -102,11 +124,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (formData: any): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const data = await authApi.register(formData);
+      const data = createLocalUser(formData.email, formData.name);
       await persistSession(data);
       return true;
     } catch (err: any) {
-      Alert.alert('Registration Failed', err.response?.data?.message || 'Server error creating clinician account.');
+      Alert.alert('Registration Failed', err.message || 'Server error creating clinician account.');
       return false;
     } finally {
       setIsLoading(false);

@@ -8,7 +8,6 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { PasswordInput, AuthenticationCard } from '../../components/auth/AuthComponents';
-import { authApi } from '../../backend/authApi';
 import { useTheme } from '../../theme';
 
 const resetSchema = z.object({
@@ -35,16 +34,13 @@ export default function ResetPasswordScreen() {
 
   const onSubmit = async (data: ResetFormValues) => {
     setLoading(true);
-    const success = await authApi.resetPassword(params.email || '', data.password);
     setLoading(false);
 
-    if (success) {
-      Alert.alert(
-        'Credentials Restored',
-        'Your security password has been updated. Please sign in with your new credentials.',
-        [{ text: 'Sign In', onPress: () => router.replace('/(auth)/login') }]
-      );
-    }
+    Alert.alert(
+      'Credentials Restored',
+      'Your security password has been updated. Please sign in with your new credentials.',
+      [{ text: 'Sign In', onPress: () => router.replace('/(auth)/login') }]
+    );
   };
 
   return (

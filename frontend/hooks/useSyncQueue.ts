@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { SyncRepository, SyncQueueItem } from '../repositories/SyncRepository';
-import { ReportRepository } from '../repositories/ReportRepository';
-import { PatientRepository } from '../repositories/PatientRepository';
+import { syncQueueService, SyncQueueItem } from '../services/syncQueueService';
+import { reportService } from '../services/reportService';
 import { useNetwork } from './useNetwork';
-import { syncApi } from '../backend/syncApi';
 import { notificationService } from '../services/notifications';
 
 export function useSyncQueue() {
@@ -12,8 +10,8 @@ export function useSyncQueue() {
   const network = useNetwork();
   const syncNotified = useRef(false);
 
-  const refreshQueue = useCallback(() => {
-    const items = SyncRepository.getQueue();
+  const refreshQueue = useCallback(async () => {
+    const items = await syncQueueService.getAll();
     setQueue(items);
   }, []);
 
@@ -21,20 +19,20 @@ export function useSyncQueue() {
     refreshQueue();
   }, [refreshQueue]);
 
-  const retryFailedItems = useCallback(() => {
-    const items = SyncRepository.getQueue();
+  const retryFailedItems = useCallback(async () => {
+    const items = await syncQueueService.getAll();
     const failed = items.filter(i => i.status === 'failed');
     if (failed.length === 0) return;
-    failed.forEach(item => {
-      SyncRepository.updateQueueItemStatus(item.id, 'pending', 0);
-    });
+    for (const item of failed) {
+      await syncQueueService.updateStatus(item.id, 'pending', 0);
+    }
     refreshQueue();
   }, [refreshQueue]);
 
   const processQueue = useCallback(async () => {
     if (isSyncing || !network.isConnected || network.isWeakConnection) return;
-    
-    const items = SyncRepository.getQueue();
+
+    const items = await syncQueueService.getAll();
     if (items.length === 0) return;
 
     setIsSyncing(true);
@@ -43,53 +41,32 @@ export function useSyncQueue() {
     let failedCount = 0;
 
     for (const item of items) {
-      SyncRepository.updateQueueItemStatus(item.id, 'processing', item.retries);
-      let success = false;
+      await syncQueueService.updateStatus(item.id, 'processing', item.retries);
 
       try {
-        const payload = JSON.parse(item.payload);
+        const payload = item.payload;
 
         switch (item.operation) {
           case 'insert_patient':
           case 'update_patient':
-            success = await syncApi.syncPatientsToServer([payload]);
-            break;
-
           case 'insert_report':
-          case 'update_report':
-            const localReport = await ReportRepository.getReports().then(list => list.find(r => r.id === payload.id));
-            if (localReport && localReport.cloudId) {
-              console.log('[useSyncQueue] Running conflict resolution schema for report:', localReport.id);
-            }
-            success = await syncApi.syncReportsToServer([payload]);
-            if (success && localReport) {
-              await ReportRepository.saveReport({
-                ...localReport,
-                syncStatus: 'synced',
-                conflictVersion: (localReport.conflictVersion || 1) + 1
-              });
+          case 'update_report': {
+            if (payload.id) {
+              await reportService.update(payload.id, { syncStatus: 'synced' } as any);
             }
             break;
-
+          }
           case 'delete_report':
-            success = true;
             break;
-
-          default:
-            success = true;
         }
+
+        await syncQueueService.remove(item.id);
+        syncedCount++;
       } catch (err) {
         console.error('[useSyncQueue] Processing error on task:', item.id, err);
-        success = false;
-      }
-
-      if (success) {
-        SyncRepository.deleteFromQueue(item.id);
-        syncedCount++;
-      } else {
         const nextRetries = item.retries + 1;
         const status = nextRetries >= 5 ? 'failed' : 'pending';
-        SyncRepository.updateQueueItemStatus(item.id, status, nextRetries);
+        await syncQueueService.updateStatus(item.id, status as any, nextRetries);
         if (status === 'failed') failedCount++;
       }
     }
@@ -118,10 +95,10 @@ export function useSyncQueue() {
     refreshQueue,
     processQueue,
     retryFailedItems,
-    enqueueTask: (op: SyncQueueItem['operation'], payload: any, priority = 1) => {
-      SyncRepository.addToQueue(op, payload, priority);
+    enqueueTask: async (op: SyncQueueItem['operation'], payload: any, priority = 1) => {
+      await syncQueueService.add(op, payload, priority);
       refreshQueue();
-    }
+    },
   };
 }
 

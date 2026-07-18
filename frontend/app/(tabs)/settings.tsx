@@ -8,7 +8,7 @@ import { useCache } from '../../hooks/useCache';
 import { DoctorCard, ProfileSection, SettingsItem } from '../../components/profile/ProfileComponents';
 import { QueueStatus, StorageUsageCard } from '../../components/offline/OfflineUI';
 import { useTheme } from '../../theme';
-import * as FileSystem from 'expo-file-system/legacy';
+import { Directory, Paths } from 'expo-file-system';
 import { router } from 'expo-router';
 
 export default function SettingsScreen() {
@@ -78,28 +78,26 @@ export default function SettingsScreen() {
 
   const handleDatabaseRestorePrompt = async () => {
     try {
-      const backupDir = `${FileSystem.documentDirectory}backups/`;
-      const dirInfo = await FileSystem.getInfoAsync(backupDir);
+      const backupDir = new Directory(Paths.document, 'backups');
       
-      if (!dirInfo.exists) {
-        Alert.alert('No Backups Found', 'No local SQLite backups have been compiled yet.');
+      if (!(await backupDir.exists)) {
+        Alert.alert('No Backups Found', 'No local backups have been compiled yet.');
         return;
       }
 
-      const files = await FileSystem.readDirectoryAsync(backupDir);
-      const dbBackups = files.filter(f => f.startsWith('backup_') && f.endsWith('.db'));
+      const files = await backupDir.list();
+      const jsonBackups = files.filter(f => f.startsWith('backup_') && f.endsWith('.json'));
 
-      if (dbBackups.length === 0) {
-        Alert.alert('No Backups Found', 'No local SQLite backups have been compiled yet.');
+      if (jsonBackups.length === 0) {
+        Alert.alert('No Backups Found', 'No local backups have been compiled yet.');
         return;
       }
 
-      // Show latest 3 backups
-      const sortedBackups = dbBackups.sort().reverse().slice(0, 3);
+      const sortedBackups = jsonBackups.sort().reverse().slice(0, 3);
       const buttons = sortedBackups.map(file => ({
-        text: file.replace('backup_tumorlens_', '').replace('.db', ''),
+        text: file.replace('backup_tumorlens_', '').replace('.json', ''),
         onPress: async () => {
-          const success = await offline.restoreDatabase(`${backupDir}${file}`);
+          const success = await offline.restoreDatabase(backupDir.uri);
           if (success) {
             cache.refreshSizes();
           }
