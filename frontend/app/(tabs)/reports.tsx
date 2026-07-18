@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, Alert, FlatList, useWindowDimensions } from 'react-native';
+import { View, Alert, FlatList, useWindowDimensions } from 'react-native';
 import { ScreenContainer } from '../../components/ui/layout/Layouts';
 import { AppHeader } from '../../components/ui/navigation/AppHeader';
 import { router } from 'expo-router';
@@ -12,7 +12,6 @@ import Animated, {
 
 // Custom components
 import { SearchBar } from '../../components/reports/SearchBar';
-import { FilterChip } from '../../components/reports/FilterChip';
 import { StatisticsRow } from '../../components/reports/StatisticsRow';
 import { ReportCard } from '../../components/reports/ReportCard';
 import { EmptyReports } from '../../components/reports/EmptyReports';
@@ -22,16 +21,6 @@ import { DeleteDialog } from '../../components/reports/DeleteDialog';
 import { useReports } from '../../hooks/useReports';
 import { pdfExportService } from '../../services/pdfExport';
 import { Report } from '../../types/report';
-
-// Filter configurations
-const FILTER_CHIPS = [
-  { key: 'all', label: 'All' },
-  { key: 'anomaly', label: 'Tumors' },
-  { key: 'healthy', label: 'Healthy' },
-  { key: 'high_tumor', label: 'High Area (≥5%)' },
-  { key: 'recent', label: 'Recent (24h)' },
-  { key: 'favorites', label: 'Starred' }
-] as const;
 
 // Skeleton Card loader
 function SkeletonCard() {
@@ -72,8 +61,6 @@ const ReportsScreen = React.memo(function ReportsScreen() {
     filteredReports,
     isLoading,
     stats,
-    filter,
-    setFilter,
     searchQuery,
     setSearchQuery,
     deleteReport,
@@ -127,24 +114,6 @@ const ReportsScreen = React.memo(function ReportsScreen() {
           <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
         </View>
 
-        {/* Filter Chips Horizontal Scrolling */}
-        <View className="mb-2">
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            className="flex-row py-1"
-          >
-            {FILTER_CHIPS.map((chip) => (
-              <FilterChip
-                key={chip.key}
-                label={chip.label}
-                selected={filter === chip.key}
-                onPress={() => setFilter(chip.key)}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
         {/* Scrollable Main Content */}
         <FlatList
           data={isLoading ? [] : filteredReports}
@@ -173,7 +142,7 @@ const ReportsScreen = React.memo(function ReportsScreen() {
               </View>
             ) : (
               <EmptyReports 
-                type={searchQuery ? 'search' : filter === 'favorites' ? 'favorites' : 'reports'} 
+                type={searchQuery ? 'search' : 'reports'} 
                 query={searchQuery}
               />
             )

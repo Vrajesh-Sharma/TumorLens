@@ -58,7 +58,7 @@ export default function HomeScreen() {
       title: 'Scan History',
       description: 'Log of past operations',
       iconName: 'time-outline' as const,
-      route: '/history',
+      route: '/(tabs)/reports',
       color: '#C5221F',
       backgroundColor: '#FCE8E6',
     },
@@ -195,7 +195,7 @@ export default function HomeScreen() {
                 title={quickActions[3].title}
                 description={quickActions[3].description}
                 iconName={quickActions[3].iconName}
-                onPress={() => router.push('/(tabs)/history')}
+                onPress={() => router.push('/(tabs)/reports')}
                 color={quickActions[3].color}
                 backgroundColor={quickActions[3].backgroundColor}
                 delayIndex={3}

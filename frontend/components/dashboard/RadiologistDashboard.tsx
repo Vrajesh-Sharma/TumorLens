@@ -144,7 +144,7 @@ export function RadiologistDashboard({ name }: { name: string }) {
               title={RADIOLOGIST_QUICK_ACTIONS[2].title}
               description={RADIOLOGIST_QUICK_ACTIONS[2].description}
               iconName={RADIOLOGIST_QUICK_ACTIONS[2].iconName}
-              onPress={() => router.push('/(tabs)/history')}
+              onPress={() => router.push('/(tabs)/reports')}
               color={RADIOLOGIST_QUICK_ACTIONS[2].color}
               backgroundColor={RADIOLOGIST_QUICK_ACTIONS[2].backgroundColor}
               delayIndex={2}
