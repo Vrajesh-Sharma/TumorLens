@@ -24,8 +24,6 @@ export default function SettingsScreen() {
   const setThemeMode = useAppStore((s) => s.setThemeMode);
 
   // Settings State Hooks
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [language, setLanguage] = useState('English (US)');
   const [darkMode, setDarkMode] = useState(themeMode === 'dark' || (themeMode === 'system' && isDark));
   const [dbSizeStr, setDbSizeStr] = useState('0.00 KB');
 
@@ -60,19 +58,6 @@ export default function SettingsScreen() {
             router.replace('/(auth)/welcome');
           }
         }
-      ]
-    );
-  };
-
-  const handleLanguageSelect = () => {
-    Alert.alert(
-      'Workstation Language',
-      'Select default localization dictionary:',
-      [
-        { text: 'English (US)', onPress: () => setLanguage('English (US)') },
-        { text: 'Español (ES)', onPress: () => setLanguage('Español (ES)') },
-        { text: 'Deutsch (DE)', onPress: () => setLanguage('Deutsch (DE)') },
-        { text: 'Cancel', style: 'cancel' }
       ]
     );
   };
@@ -158,21 +143,6 @@ export default function SettingsScreen() {
         {/* Preferences Section */}
         <ProfileSection title="Workstation Preferences">
           <SettingsItem 
-            icon="notifications-outline" 
-            title="Intake Notifications" 
-            subtitle="Get alerts for remote scan completions" 
-            hasSwitch 
-            switchValue={notificationsEnabled}
-            onSwitchChange={setNotificationsEnabled}
-          />
-          <SettingsItem 
-            icon="language-outline" 
-            title="System Language" 
-            subtitle="Change dictionary localization" 
-            value={language}
-            onPress={handleLanguageSelect}
-          />
-          <SettingsItem 
             icon="moon-outline" 
             title="Dark Interface Mode" 
             subtitle="Toggle high-contrast radiology theme" 
@@ -238,12 +208,6 @@ export default function SettingsScreen() {
             title="HIPAA Privacy Guidelines" 
             subtitle="Review patient confidentiality terms" 
             onPress={handlePrivacyPolicy}
-          />
-          <SettingsItem 
-            icon="finger-print-outline" 
-            title="Local Biometrics Status" 
-            subtitle="Touch ID / Face ID hardware configuration" 
-            value="Configured"
           />
         </ProfileSection>
 
