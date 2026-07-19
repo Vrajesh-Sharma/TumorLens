@@ -1,5 +1,4 @@
 **PROJECT DOCUMENTATION**
-
 **TumourLens**\
 Spatio-Temporal Attention U-Net
 
@@ -8,6 +7,7 @@ Spatio-Temporal Attention U-Net
 High-precision Brain Tumor Segmentation optimized for memory-constrained
 training and accelerated edge deployment via Qualcomm AI Hub.
 
+![image](images/Brain_Tumor_Segmentation_Workflow.png)
 **Executive Summary**
 
 TumourLens is an end-to-end deep learning pipeline designed to segment
