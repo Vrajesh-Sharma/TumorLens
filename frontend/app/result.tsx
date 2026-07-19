@@ -170,22 +170,23 @@ export default function ResultScreen() {
     );
   }
 
-  const isTumorDetected = prediction.detection_flag;
+  const isTumorDetected = prediction.detection_flag && (prediction.tumor_area || 0) >= 2;
   const stats = prediction.stats || {};
   const inferenceTime = stats.inference_time || undefined;
   const perClass = prediction.per_class_counts || {};
 
   const clinicalReport = reportFormatter.generateReport(prediction);
 
-  const overlaySourceUri = prediction.overlay_image?.startsWith('data:')
+  const shouldShowOverlay = isTumorDetected;
+  const overlaySourceUri = shouldShowOverlay && prediction.overlay_image?.startsWith('data:')
     ? prediction.overlay_image
-    : prediction.overlay_image
+    : shouldShowOverlay && prediction.overlay_image
       ? `data:image/png;base64,${prediction.overlay_image}`
       : null;
 
-  const maskSourceUri = prediction.raw_mask?.startsWith('data:')
+  const maskSourceUri = shouldShowOverlay && prediction.raw_mask?.startsWith('data:')
     ? prediction.raw_mask
-    : prediction.raw_mask
+    : shouldShowOverlay && prediction.raw_mask
       ? `data:image/png;base64,${prediction.raw_mask}`
       : null;
 

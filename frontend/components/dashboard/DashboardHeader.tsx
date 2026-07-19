@@ -11,7 +11,6 @@ interface DashboardHeaderProps {
   subtitle?: string;
   onNotificationPress?: () => void;
   onProfilePress?: () => void;
-  hasNotifications?: boolean;
 }
 
 function getInitials(name: string): string {
@@ -29,7 +28,6 @@ export function DashboardHeader({
   subtitle = 'Doctor Dashboard',
   onNotificationPress,
   onProfilePress,
-  hasNotifications = true,
 }: DashboardHeaderProps) {
   const { colors, isDark } = useTheme();
   const { width } = useWindowDimensions();
@@ -68,9 +66,6 @@ export function DashboardHeader({
             size={20}
             color={isDark ? colors.text : '#1F2023'}
           />
-          {hasNotifications && (
-            <View className="absolute top-2 right-2.5 w-2.5 h-2.5 rounded-full bg-danger border border-surface dark:border-surface-dark" />
-          )}
         </Pressable>
 
         <Pressable

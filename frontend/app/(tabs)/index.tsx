@@ -117,7 +117,6 @@ export default function HomeScreen() {
             );
           }}
           onProfilePress={() => router.push('/(tabs)/settings')}
-          hasNotifications={true}
         />
         <RadiologistDashboard name={userName} />
       </ScreenContainer>
@@ -136,7 +135,6 @@ export default function HomeScreen() {
           );
         }}
         onProfilePress={() => router.push('/(tabs)/settings')}
-        hasNotifications={true}
       />
 
       <ScrollView
